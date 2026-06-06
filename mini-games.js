@@ -39,10 +39,11 @@ class MiniGames {
 
         // Show story intro with Archon Meritus
         const mentorMsg = typeof MENTOR !== 'undefined' ? MENTOR.getBeforeMessage('trivia', difficulty) : storyIntros[difficulty];
+        const mentorIcon = typeof MENTOR !== 'undefined' && MENTOR.img ? `<img src="${MENTOR.img}" alt="${MENTOR.name}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-dark);" onerror="this.outerHTML='<span style=font-size:3rem>${MENTOR.icon}</span>'">` : `<div style="font-size:3rem;">${typeof MENTOR !== 'undefined' ? MENTOR.icon : '📜'}</div>`;
         container.innerHTML = `
             <div style="text-align:center;padding:1.5rem;">
-                <div style="font-size:3rem;margin-bottom:0.3rem;">${typeof MENTOR !== 'undefined' ? MENTOR.icon : '📜'}</div>
-                <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold-dark);margin-bottom:0.8rem;">${typeof MENTOR !== 'undefined' ? MENTOR.name : ''}</div>
+                ${mentorIcon}
+                <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold-dark);margin:0.5rem 0;">${typeof MENTOR !== 'undefined' ? MENTOR.name : ''}</div>
                 <p style="color:var(--text-light);font-size:0.9rem;line-height:1.7;max-width:500px;margin:0 auto 1.5rem;font-style:italic;padding:1rem;background:rgba(0,0,0,0.15);border-radius:10px;border-left:3px solid var(--gold-dark);">"${mentorMsg}"</p>
                 <button class="btn-guild" id="btn-start-challenge">Begin Challenge</button>
             </div>

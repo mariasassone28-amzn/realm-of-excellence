@@ -2567,3 +2567,26 @@ h1, h2, h3, h4 {
 .quest-card {
     flex-wrap: wrap;
 }
+
+/* ===== FACTION & MONSTER IMAGES ===== */
+.faction-img {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.monster-sprite img {
+    width: 100%;
+    height: auto;
+    max-width: 60px;
+}
+
+/* Scale monster images by level */
+.map-monster[data-level="1"] .monster-sprite img { max-width: 40px; }
+.map-monster[data-level="2"] .monster-sprite img { max-width: 45px; }
+.map-monster[data-level="3"] .monster-sprite img { max-width: 50px; }
+.map-monster[data-level="4"] .monster-sprite img { max-width: 55px; }
+.map-monster[data-level="5"] .monster-sprite img { max-width: 65px; }
+.map-monster[data-level="6"] .monster-sprite img { max-width: 70px; }
+.map-monster[data-level="7"] .monster-sprite img { max-width: 80px; }

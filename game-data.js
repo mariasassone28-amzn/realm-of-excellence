@@ -2,23 +2,23 @@
 const GAME_DATA = {
     houses: {
         'medical-coding': {
-            name: 'Medical Coding', icon: '🦉', color: '#6b2fa0',
+            name: 'Medical Coding', icon: '🦉', img: 'images/owlbanner.png', color: '#6b2fa0',
             stats: { wisdom: 3, precision: 2, speed: 0, tenacity: 0, empathy: 1 }
         },
         'charge-capture': {
-            name: 'Charge Capture', icon: '🦅', color: '#1e3a6e',
+            name: 'Charge Capture', icon: '🦅', img: 'images/notsurewhatbirdbanner.png', color: '#1e3a6e',
             stats: { wisdom: 1, precision: 2, speed: 3, tenacity: 0, empathy: 0 }
         },
         'collections': {
-            name: 'Collections', icon: '🦁', color: '#b8860b',
+            name: 'Collections', icon: '🦁', img: 'images/lionbanner.png', color: '#b8860b',
             stats: { wisdom: 0, precision: 0, speed: 1, tenacity: 3, empathy: 2 }
         },
         'cash-application': {
-            name: 'Cash Application', icon: '🐉', color: '#1a5c3a',
+            name: 'Cash Application', icon: '🐉', img: 'images/snakebanner.png', color: '#1a5c3a',
             stats: { wisdom: 1, precision: 3, speed: 0, tenacity: 2, empathy: 0 }
         },
         'patient-financial': {
-            name: 'Patient Financial Services', icon: '🧸', iconHtml: '<span style="position:relative;display:inline-block;">🧸<span style="position:absolute;bottom:22%;left:50%;transform:translateX(-50%);font-size:0.35em;">❤️</span></span>', color: '#8b1a1a',
+            name: 'Patient Financial Services', icon: '🧸', img: 'images/bearbanner.png', iconHtml: '<span style="position:relative;display:inline-block;">🧸<span style="position:absolute;bottom:22%;left:50%;transform:translateX(-50%);font-size:0.35em;">❤️</span></span>', color: '#8b1a1a',
             stats: { wisdom: 2, precision: 0, speed: 0, tenacity: 0, empathy: 3 }
         }
     },
