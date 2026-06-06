@@ -1,0 +1,571 @@
+/* ═══════════════════════════════════════════════════════════════
+   MAP & UI OVERHAUL — Immersive Fantasy Theme
+   Addresses: texture, node landmarks, boss scale, quest scrolls,
+   unified palette, profile prominence
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ===== 1. UNIFIED PALETTE (dark warm tones throughout) ===== */
+.hud-bar {
+    background: linear-gradient(180deg, #2a1a0e 0%, #1a0f08 100%);
+    border-bottom: 3px solid #8b6914;
+    padding: 0.7rem 1.2rem;
+}
+
+.hud-avatar {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #3a2010, #1a0f08);
+    border: 3px solid #c9a84c;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 0 12px rgba(201, 168, 76, 0.3);
+}
+
+.hud-name {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: 1rem;
+    color: #f0e8d8;
+}
+
+.hud-rank {
+    font-size: 0.8rem;
+    color: #ffd700;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* ===== 2. WORLD MAP — Parchment Texture & Depth ===== */
+.map-section {
+    background: 
+        /* Aged parchment base */
+        linear-gradient(160deg, #c4944a 0%, #b8843c 20%, #a87430 40%, #9a6528 60%, #8c5820 80%, #7a4c18 100%);
+    position: relative;
+    overflow: auto;
+}
+
+.map-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    min-height: 750px;
+    background:
+        /* Terrain hills and valleys */
+        radial-gradient(ellipse 200px 120px at 10% 15%, rgba(90, 60, 20, 0.4) 0%, transparent 70%),
+        radial-gradient(ellipse 180px 100px at 90% 80%, rgba(100, 65, 25, 0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 250px 80px at 50% 90%, rgba(140, 100, 40, 0.3) 0%, transparent 70%),
+        radial-gradient(ellipse 150px 150px at 30% 60%, rgba(80, 50, 15, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 120px 120px at 70% 35%, rgba(160, 120, 50, 0.2) 0%, transparent 60%),
+        /* Dark edges (vignette) */
+        radial-gradient(ellipse at center, transparent 40%, rgba(40, 20, 5, 0.4) 100%),
+        /* Parchment stain spots */
+        radial-gradient(circle 30px at 20% 25%, rgba(60, 35, 10, 0.15) 0%, transparent 100%),
+        radial-gradient(circle 40px at 75% 70%, rgba(60, 35, 10, 0.12) 0%, transparent 100%),
+        radial-gradient(circle 25px at 55% 45%, rgba(60, 35, 10, 0.1) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Parchment grain texture */
+.map-section::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    min-height: 750px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.8;
+    z-index: 0;
+    mix-blend-mode: multiply;
+}
+
+.map-title-bar {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #f0e8d8;
+    background: linear-gradient(180deg, #2a1a0e 0%, #1a0f08 100%);
+    padding: 0.6rem 1rem;
+    text-align: center;
+    border-bottom: 3px solid #8b6914;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* ===== 3. MAP NODES — Landmark Style ===== */
+.map-node-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(180deg, #f5e8d0 0%, #e0c898 50%, #d4b880 100%);
+    border: 3px solid #8b6914;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin: 0 auto;
+    box-shadow: 
+        0 4px 12px rgba(40, 20, 5, 0.5),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: all 0.2s;
+}
+
+.map-node:hover .map-node-icon {
+    box-shadow: 
+        0 4px 12px rgba(40, 20, 5, 0.5),
+        0 0 20px rgba(255, 215, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3);
+    border-color: #ffd700;
+}
+
+/* Gold filigree corner accents on nodes */
+.map-node-icon::before {
+    content: '◆';
+    position: absolute;
+    top: -3px; left: -3px;
+    font-size: 0.5rem;
+    color: #c9a84c;
+}
+
+.map-node-icon::after {
+    content: '◆';
+    position: absolute;
+    bottom: -3px; right: -3px;
+    font-size: 0.5rem;
+    color: #c9a84c;
+}
+
+.map-node-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #2a1a0e;
+    margin-top: 5px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.map-node-check {
+    position: absolute;
+    top: -6px; right: -6px;
+    width: 22px; height: 22px;
+    background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+    border: 2px solid #1b5e20;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* ===== 4. BATTLE SECTION — Integrated Dark Theme ===== */
+.battle-section {
+    background: 
+        radial-gradient(ellipse at 50% 20%, rgba(139, 0, 0, 0.15) 0%, transparent 60%),
+        linear-gradient(180deg, #1a0808 0%, #0f0404 30%, #1a0505 60%, #0f0404 100%);
+    overflow-y: auto;
+    border-left: 3px solid #5a1a1a;
+    position: relative;
+}
+
+/* Parchment/scroll texture on battle panel */
+.battle-section::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Torn edge / filigree border between map and battle */
+.battle-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -3px; bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, 
+        #8b6914 0%, #c9a84c 10%, #8b6914 20%, 
+        #c9a84c 30%, #8b6914 40%, #c9a84c 50%,
+        #8b6914 60%, #c9a84c 70%, #8b6914 80%,
+        #c9a84c 90%, #8b6914 100%);
+    z-index: 1;
+}
+
+/* ===== BOSS AREA — Large, Dominant ===== */
+.boss-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.2rem 1rem;
+    background: radial-gradient(ellipse at center, rgba(139, 0, 0, 0.2) 0%, transparent 70%);
+    border-bottom: 2px solid #3a1010;
+    position: relative;
+    z-index: 1;
+}
+
+.boss-illustration {
+    position: relative;
+    margin-bottom: 0.8rem;
+}
+
+.boss-illustration .boss-chibi {
+    font-size: 5rem;
+    filter: drop-shadow(0 0 20px rgba(231, 76, 60, 0.6)) drop-shadow(0 6px 12px rgba(0,0,0,0.8));
+    animation: bossPulse 2s ease-in-out infinite;
+}
+
+.boss-flames-left, .boss-flames-right {
+    position: absolute;
+    top: 10%;
+    font-size: 1.5rem;
+    animation: flicker 0.4s ease-in-out infinite alternate;
+}
+
+.boss-flames-left { left: -20px; transform: scaleX(-1); }
+.boss-flames-right { right: -20px; }
+
+.boss-nameplate {
+    text-align: center;
+    margin-bottom: 0.6rem;
+}
+
+.boss-nameplate .boss-quarter {
+    font-size: 0.65rem;
+    color: #ff4444;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: pulseText 3s ease-in-out infinite;
+}
+
+.boss-nameplate .boss-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #ff6b6b;
+    text-shadow: 0 0 12px rgba(231, 76, 60, 0.5), 0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: 1px;
+}
+
+/* ===== OBJECTIVES — Progress Rings (not checkmarks) ===== */
+.boss-objectives {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid rgba(90, 26, 26, 0.5);
+    position: relative;
+    z-index: 1;
+}
+
+.boss-objectives h4 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: #f0e8d8;
+    margin-bottom: 0.5rem;
+}
+
+.obj-item {
+    font-size: 0.75rem;
+    color: #ccc;
+    padding: 0.3rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.obj-item.in-progress {
+    color: #ffcc80;
+}
+
+.obj-progress-ring {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.obj-progress-ring svg {
+    width: 100%;
+    height: 100%;
+}
+
+.obj-fraction {
+    margin-left: auto;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #ff8c42;
+    background: rgba(255, 140, 66, 0.1);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 140, 66, 0.3);
+}
+
+/* ===== RAID BUTTON — Thematic Gem/Signboard Style ===== */
+.btn-raid {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    font-weight: 900;
+    width: calc(100% - 2rem);
+    margin: 0.8rem 1rem;
+    padding: 0.8rem 1rem;
+    background: 
+        linear-gradient(180deg, rgba(200, 50, 50, 0.9) 0%, rgba(120, 20, 20, 0.95) 50%, rgba(60, 10, 10, 0.9) 100%);
+    color: #ffcccc;
+    border: 3px solid #ff4444;
+    border-radius: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 4px 0 #3a0000, 
+        0 0 20px rgba(231, 76, 60, 0.3),
+        inset 0 1px 0 rgba(255, 150, 150, 0.2);
+    transition: all 0.15s;
+    animation: raidPulse 3s ease-in-out infinite;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-raid:hover {
+    color: white;
+    border-color: #ff6666;
+    box-shadow: 
+        0 4px 0 #3a0000, 
+        0 0 30px rgba(231, 76, 60, 0.6),
+        inset 0 1px 0 rgba(255, 150, 150, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-raid:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #3a0000, 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+.raid-btn-icon { font-size: 1.2rem; }
+
+.raid-btn-glow {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: btnShimmer 4s ease-in-out infinite;
+}
+
+@keyframes btnShimmer {
+    0%, 100% { left: -100%; }
+    50% { left: 150%; }
+}
+
+/* ===== RAID REWARDS — Scroll Style ===== */
+.raid-rewards {
+    padding: 0.6rem 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.raid-rewards h5 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    color: #f0e8d8;
+    margin-bottom: 0.2rem;
+}
+
+.reward-item {
+    font-size: 0.65rem;
+    color: #9a8a6a;
+    padding: 0.1rem 0;
+}
+
+.reward-item.highlight {
+    color: #ff8c42;
+    font-weight: 700;
+}
+
+.reward-section {
+    margin-bottom: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(40, 20, 10, 0.4);
+    border-radius: 6px;
+    border: 1px solid rgba(139, 105, 20, 0.2);
+}
+
+/* ===== 5. ACTIVE QUESTS — Scroll/Bounty Board Style ===== */
+.quests-strip {
+    background: linear-gradient(180deg, #2a1a0e 0%, #1a0f08 100%);
+    border-top: 3px solid #8b6914;
+    padding: 0.6rem 1rem;
+    min-height: 95px;
+}
+
+.quests-strip-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #ffd700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.quest-mini-card {
+    background: linear-gradient(180deg, #3a2a18 0%, #2a1a0e 100%);
+    border: 2px solid #6b4e20;
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    min-width: 210px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    box-shadow: inset 0 1px 0 rgba(201, 168, 76, 0.1);
+}
+
+.quest-mini-card:hover {
+    border-color: #c9a84c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(201, 168, 76, 0.2);
+}
+
+.quest-mini-card .qm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.quest-mini-card .qm-name {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: #f0e8d8;
+}
+
+.quest-mini-card .qm-xp {
+    font-size: 0.65rem;
+    color: #ffd700;
+    font-weight: 700;
+}
+
+.quest-mini-card .qm-desc {
+    font-size: 0.65rem;
+    color: #9a8a6a;
+    margin-top: 0.15rem;
+}
+
+.quest-mini-card .qm-status {
+    font-size: 0.6rem;
+    font-weight: 700;
+    margin-top: 0.2rem;
+    color: #4e9af1;
+}
+
+.quest-mini-card .qm-chibi {
+    position: absolute;
+    top: -10px;
+    right: -5px;
+    font-size: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+/* ===== 6. BOTTOM NAV — Unified Dark Wood ===== */
+.bottom-nav {
+    display: flex;
+    background: linear-gradient(180deg, #2a1a0e 0%, #1a0f08 100%);
+    border-top: 3px solid #8b6914;
+    padding: 0.4rem 0;
+}
+
+.nav-btn {
+    flex: 1;
+    text-align: center;
+    cursor: pointer;
+    padding: 0.35rem 0;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.nav-btn.active .nav-text { color: #ffd700; }
+.nav-btn.active .nav-icon { transform: scale(1.2); }
+
+.nav-icon { font-size: 1.3rem; display: block; transition: transform 0.2s; }
+
+.nav-text {
+    font-family: 'Cinzel', serif;
+    font-size: 0.55rem;
+    color: #8a7a5a;
+    font-weight: 700;
+    display: block;
+    margin-top: 0.1rem;
+}
+
+/* ===== 7. LEADERBOARD SHORTCUT — Integrated ===== */
+.lb-shortcut {
+    position: fixed;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, #2a1a0e 0%, #1a0f08 100%);
+    border-top: 2px solid #8b6914;
+    padding: 0.4rem 0.8rem;
+    z-index: 50;
+    transition: transform 0.3s ease;
+}
+
+.lb-shortcut.collapsed {
+    transform: translateY(calc(100% - 28px));
+}
+
+.lb-shortcut-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffd700;
+}
+
+.lb-mini-card {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(180deg, #3a2a18 0%, #2a1a0e 100%);
+    border: 1px solid #5a3a15;
+    border-radius: 8px;
+    padding: 0.4rem 0.7rem;
+    min-width: 170px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.lb-mini-card:hover {
+    border-color: #8b6914;
+}
+
+.lb-mini-card.is-you {
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+.lb-mini-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #f0e8d8;
+}
+
+.lb-mini-xp {
+    font-size: 0.55rem;
+    color: #c9a84c;
+    font-weight: 600;
+}

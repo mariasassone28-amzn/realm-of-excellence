@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Realm of Excellence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-map-overhaul.css">
+</head>
+<body>
+    <!-- Title Screen -->
+    <div id="title-screen" class="screen active">
+        <div class="title-bg-overlay"></div>
+        <div class="title-content">
+            <div class="title-crest">⚜️</div>
+            <h1 class="title-main">REALM OF EXCELLENCE</h1>
+            <h2 class="title-sub">GUILD OF SMEs</h2>
+            <p class="title-motto">One Guild. One Purpose. Patients First.</p>
+            <div class="title-values">Integrity · Ownership · Excellence · Empathy · Together</div>
+            <div class="title-buttons">
+                <button id="btn-new-game" class="btn-guild">Begin Your Journey</button>
+                <button id="btn-continue" class="btn-guild btn-guild-alt" style="display:none;">Continue Quest</button>
+                <button id="btn-how-to-play" class="btn-guild btn-guild-alt">How to Play</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Creation -->
+    <div id="character-screen" class="screen">
+        <div class="screen-header">
+            <h2>Choose Your Faction</h2>
+        </div>
+        <div class="screen-body">
+            <p class="intro-text">Each faction represents a pillar of Healthcare FinOps. Your path begins here.</p>
+            <div class="faction-grid">
+                <div class="faction-card" data-house="medical-coding">
+                    <div class="faction-banner purple">
+                        <div class="faction-chibi">🦉</div>
+                    </div>
+                    <h3>Medical Coding</h3>
+                    <p class="faction-motto">"We translate care into clarity."</p>
+                    <div class="faction-stats">+3 Wisdom · +2 Precision</div>
+                </div>
+                <div class="faction-card" data-house="charge-capture">
+                    <div class="faction-banner blue">
+                        <div class="faction-chibi">🦅</div>
+                    </div>
+                    <h3>Charge Capture</h3>
+                    <p class="faction-motto">"We capture today so care can continue."</p>
+                    <div class="faction-stats">+3 Speed · +2 Accuracy</div>
+                </div>
+                <div class="faction-card" data-house="collections">
+                    <div class="faction-banner gold">
+                        <div class="faction-chibi">🦁</div>
+                    </div>
+                    <h3>Collections</h3>
+                    <p class="faction-motto">"We recover today to protect tomorrow."</p>
+                    <div class="faction-stats">+3 Tenacity · +2 Charisma</div>
+                </div>
+                <div class="faction-card" data-house="cash-application">
+                    <div class="faction-banner green">
+                        <div class="faction-chibi">🐉</div>
+                    </div>
+                    <h3>Cash Application</h3>
+                    <p class="faction-motto">"We post with precision."</p>
+                    <div class="faction-stats">+3 Precision · +2 Focus</div>
+                </div>
+                <div class="faction-card" data-house="patient-financial">
+                    <div class="faction-banner red">
+                        <div class="faction-chibi" style="position:relative;">🧸<span style="position:absolute;bottom:18%;left:50%;transform:translateX(-50%);font-size:0.4em;">❤️</span></div>
+                    </div>
+                    <h3>Patient Financial</h3>
+                    <p class="faction-motto">"We support every patient journey."</p>
+                    <div class="faction-stats">+3 Empathy · +2 Wisdom</div>
+                </div>
+            </div>
+            <div id="name-section" style="display:none;">
+                <input type="text" id="player-name" placeholder="Enter your guild name..." maxlength="24">
+                <button id="btn-create" class="btn-guild">Enter the Realm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Screen -->
+    <div id="game-screen" class="screen">
+        <!-- Top HUD Bar -->
+        <div class="hud-bar">
+            <div class="hud-left">
+                <div class="hud-avatar" id="hud-avatar">🦉</div>
+                <div class="hud-info">
+                    <div class="hud-name" id="hud-name">Master_SME_Pro</div>
+                    <div class="hud-rank" id="hud-rank">Rank: Adept II</div>
+                </div>
+            </div>
+            <div class="hud-right">
+                <div class="hud-xp">Total XP: <span id="hud-xp">4,875</span> ⭐</div>
+                <div class="hud-gold"><span id="hud-gold">0</span> ⚜️</div>
+            </div>
+        </div>
+
+        <!-- Main Content Split -->
+        <div class="main-content">
+            <!-- Left: World Map -->
+            <div class="map-section">
+                <div class="map-title-bar">Revenue Cycle World Map</div>
+                <div class="world-map" id="world-map">
+                    <!-- Map nodes rendered by JS -->
+                </div>
+            </div>
+
+            <!-- Right: Guild Battle -->
+            <div class="battle-section">
+                <div class="map-title-bar">⚔️ Guild Battle in Progress</div>
+                
+                <!-- Boss Illustration (Large, Dominant) -->
+                <div class="boss-area">
+                    <div class="boss-illustration">
+                        <div class="boss-chibi">👹</div>
+                        <div class="boss-flames-left">🔥</div>
+                        <div class="boss-flames-right">🔥</div>
+                    </div>
+                    <div class="boss-nameplate">
+                        <div class="boss-quarter">⚠️ Q3 BOSS</div>
+                        <div class="boss-name">THE DEFECT SURGE</div>
+                    </div>
+                    <div class="boss-hp-container">
+                        <div class="boss-hp-bar" id="boss-hp-bar" style="width:75%"></div>
+                        <span class="boss-hp-label" id="boss-hp-label">75% HP</span>
+                    </div>
+                </div>
+
+                <!-- Objectives with proper progress indicators -->
+                <div class="boss-objectives">
+                    <h4>Guild Boss Objectives:</h4>
+                    <div class="obj-item in-progress">
+                        <div class="obj-progress-ring" data-progress="80">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#3a2010" stroke-width="3" fill="none"/><circle cx="12" cy="12" r="10" stroke="#ff8c42" stroke-width="3" fill="none" stroke-dasharray="63" stroke-dashoffset="12.6" transform="rotate(-90 12 12)"/></svg>
+                        </div>
+                        <span>Complete 5 Deep Dives</span>
+                        <span class="obj-fraction">4/5</span>
+                    </div>
+                    <div class="obj-item in-progress">
+                        <div class="obj-progress-ring" data-progress="64">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#3a2010" stroke-width="3" fill="none"/><circle cx="12" cy="12" r="10" stroke="#ff8c42" stroke-width="3" fill="none" stroke-dasharray="63" stroke-dashoffset="22.7" transform="rotate(-90 12 12)"/></svg>
+                        </div>
+                        <span>Audit 50 Claims</span>
+                        <span class="obj-fraction">32/50</span>
+                    </div>
+                    <div class="obj-item in-progress">
+                        <div class="obj-progress-ring" data-progress="80">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#3a2010" stroke-width="3" fill="none"/><circle cx="12" cy="12" r="10" stroke="#ff8c42" stroke-width="3" fill="none" stroke-dasharray="63" stroke-dashoffset="12.6" transform="rotate(-90 12 12)"/></svg>
+                        </div>
+                        <span>Facilitate 10 Coaching Sessions</span>
+                        <span class="obj-fraction">8/10</span>
+                    </div>
+                </div>
+
+                <!-- Thematic Raid Button -->
+                <button class="btn-raid" id="btn-raid">
+                    <span class="raid-btn-icon">⚔️</span>
+                    <span class="raid-btn-text">Join Boss Raid</span>
+                    <span class="raid-btn-glow"></span>
+                </button>
+
+                <!-- Rewards (scroll-style) -->
+                <div class="raid-rewards">
+                    <div class="reward-section">
+                        <h5>🏆 Unlocked Entitlements:</h5>
+                        <div class="reward-item">• Bronze Guild Badge</div>
+                        <div class="reward-item">• Mentor Access</div>
+                    </div>
+                    <div class="reward-section">
+                        <h5>🎯 Target Rewards:</h5>
+                        <div class="reward-item">• Advanced Certification</div>
+                        <div class="reward-item">• Regional Conference Ticket</div>
+                        <div class="reward-item highlight">500 XP to go</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Shortcut (floating/collapsible) -->
+        <div class="lb-shortcut" id="lb-shortcut">
+            <div class="lb-shortcut-header" id="lb-shortcut-header">
+                <span class="lb-shortcut-title">🏆 Top Guild Members</span>
+                <div class="lb-shortcut-controls">
+                    <button class="lb-shortcut-btn" id="btn-lb-expand">View All →</button>
+                    <button class="lb-shortcut-toggle" id="btn-lb-toggle">▼ Hide</button>
+                </div>
+            </div>
+            <div class="lb-shortcut-list" id="lb-shortcut-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Active Quests Bar -->
+        <div class="quests-strip">
+            <div class="quests-strip-title">Active Quests</div>
+            <div class="quests-scroll" id="active-quests"></div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+            <div class="nav-btn active" data-nav="map"><span class="nav-icon">🗺️</span><span class="nav-text">Map</span></div>
+            <div class="nav-btn" data-nav="quests"><span class="nav-icon">📜</span><span class="nav-text">Quests</span><span class="nav-notif" id="nav-quest-badge">3</span></div>
+            <div class="nav-btn" data-nav="train"><span class="nav-icon">📖</span><span class="nav-text">Train</span></div>
+            <div class="nav-btn" data-nav="guild"><span class="nav-icon">⚔️</span><span class="nav-text">Guild</span></div>
+            <div class="nav-btn" data-nav="profile"><span class="nav-icon">👤</span><span class="nav-text">Profile</span></div>
+        </div>
+
+        <!-- XP Toast -->
+        <div class="xp-toast" id="xp-toast"><span id="xp-toast-text"></span></div>
+    </div>
+
+    <!-- Sub-Screens -->
+    <div id="sub-screen" class="screen">
+        <div class="screen-header">
+            <button class="btn-back" id="btn-back-sub">←</button>
+            <h2 id="sub-screen-title">Screen</h2>
+        </div>
+        <div class="screen-body" id="sub-screen-body"></div>
+    </div>
+
+    <!-- Boss Raid Modal -->
+    <div id="raid-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="background:linear-gradient(180deg, #1a0505 0%, #0a0202 50%, #1a0505 100%);border-color:#8b2020;">
+            <div class="boss-chibi large" style="margin-bottom:0.5rem;">👹</div>
+            <h2 style="color:#ff4444;text-shadow:0 0 15px rgba(231,76,60,0.5);">THE DEFECT SURGE</h2>
+            <p class="modal-desc" style="color:#ff9999;">⚠️ Answer correctly to deal damage. Miss and the boss strikes back!</p>
+            <div id="raid-game-area"></div>
+            <button class="btn-guild btn-guild-alt" id="btn-close-raid" style="display:none;">Return to Map</button>
+        </div>
+    </div>
+
+    <!-- Level Up Modal -->
+    <div id="levelup-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box levelup-box">
+            <div class="levelup-sparkle">✨ ⭐ ✨</div>
+            <h2>RANK UP!</h2>
+            <div class="levelup-rank" id="levelup-rank-text"></div>
+            <p class="levelup-bonus" id="levelup-bonus-text"></p>
+            <button class="btn-guild" id="btn-close-levelup">Continue</button>
+        </div>
+    </div>
+
+    <!-- How to Play / Tutorial Screen -->
+    <div id="tutorial-screen" class="screen">
+        <div class="screen-header">
+            <button class="btn-back" id="btn-back-tutorial">←</button>
+            <h2>How to Play</h2>
+        </div>
+        <div class="screen-body" id="tutorial-body">
+            <div style="max-width:700px;margin:0 auto;">
+
+                <div style="text-align:center;margin-bottom:2rem;">
+                    <div style="font-size:3rem;margin-bottom:0.5rem;">⚜️</div>
+                    <h3 style="font-family:'Cinzel Decorative',cursive;color:var(--gold);font-size:1.5rem;">Welcome to the Realm</h3>
+                    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.3rem;">A quick guide to get you started on your journey.</p>
+                </div>
+
+                <!-- Step 1 -->
+                <div class="tutorial-step">
+                    <div class="tutorial-step-num">1</div>
+                    <div class="tutorial-step-content">
+                        <h4>Choose Your Faction</h4>
+                        <p>Pick the team that matches your real RCM function: Medical Coding (🦉), Charge Capture (🦅), Collections (🦁), Cash Application (🐉), or Patient Financial Services (🧸❤️). Each faction has unique stat bonuses that give you advantages in specific activities.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="tutorial-step">
+                    <div class="tutorial-step-num">2</div>
+                    <div class="tutorial-step-content">
+                        <h4>Explore the World Map</h4>
+                        <p>The map has locations you can visit (Training Mesa, Audit Outpost, Deep Dive Canyon, etc.). Click a location to access mini-games like Trivia, Word Scramble, Rapid Fire, and Match Pairs. You can also click monsters on the map to battle them.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="tutorial-step">
+                    <div class="tutorial-step-num">3</div>
+                    <div class="tutorial-step-content">
+                        <h4>Earn XP Through Real Work</h4>
+                        <p>The most valuable XP comes from <strong>Tasks</strong> — real-world work like audits, coaching sessions, deep dives, and WBR submissions. Complete the work, then submit proof (email subject or document link). Your Guild Founder reviews and approves before points are awarded.</p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="tutorial-step">
+                    <div class="tutorial-step-num">4</div>
+                    <div class="tutorial-step-content">
+                        <h4>Complete Quests</h4>
+                        <p>Check the <strong>Quest Board</strong> (📜) for daily, weekly, epic, and legendary quests. Hover over any quest to see detailed instructions on how to complete it. Legendary quests like the Close-the-Loop Deep Dive award the most XP.</p>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="tutorial-step">
+                    <div class="tutorial-step-num">5</div>
+                    <div class="tutorial-step-content">
+                        <h4>Level Up Your Skills</h4>
+                        <p>The <strong>Skills</strong> tab (📖) shows your function-specific training track from the SME Development Program 2.0. Complete e-learning modules, attend ILT sessions, and finish assignments to earn XP and build expertise in your area.</p>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="tutorial-step">
+                    <div class="tutorial-step-num">6</div>
+                    <div class="tutorial-step-content">
+                        <h4>Collaborate Across Teams</h4>
+                        <p>Go to <strong>Factions</strong> (⚔️) to log cross-team collaborations. Every time you work with someone from another faction (joint audit, shared deep dive, calibration session), log it for +30 XP. Both teams get bonus points.</p>
+                    </div>
+                </div>
+
+                <!-- Step 7 -->
+                <div class="tutorial-step">
+                    <div class="tutorial-step-num">7</div>
+                    <div class="tutorial-step-content">
+                        <h4>Fight the Boss</h4>
+                        <p>Each quarter has a Boss tied to a real KPI challenge. Click <strong>"Join Boss Raid"</strong> to answer trivia questions that deal damage. The whole guild works together to defeat the boss and unlock rewards like badges and certification eligibility.</p>
+                    </div>
+                </div>
+
+                <!-- Step 8 -->
+                <div class="tutorial-step">
+                    <div class="tutorial-step-num">8</div>
+                    <div class="tutorial-step-content">
+                        <h4>Climb the Leaderboard</h4>
+                        <p>Your XP contributes to both your individual rank and your team's total. Check <strong>Ranks</strong> (🏆) to see where you stand. Check <strong>Teams</strong> (🏴) to see which faction is winning the quarterly competition. Top performers earn real-world recognition.</p>
+                    </div>
+                </div>
+
+                <!-- Key Rules -->
+                <div style="margin-top:2rem;padding:1.2rem;background:var(--bg-dark);border:2px solid var(--gold-dark);border-radius:12px;">
+                    <h4 style="font-family:'Cinzel',serif;color:var(--gold);margin-bottom:0.8rem;">📜 Key Rules</h4>
+                    <div style="font-size:0.85rem;color:var(--text-light);line-height:1.8;">
+                        <p>• <strong>No proof, no points.</strong> Tasks require tangible evidence (email, link, screenshot).</p>
+                        <p>• <strong>Guild Founder reviews all task submissions.</strong> Points are awarded after approval.</p>
+                        <p>• <strong>Mini-games award XP instantly.</strong> Trivia, scrambles, and raids don't need approval.</p>
+                        <p>• <strong>Stat bonuses matter.</strong> Your faction gives you real advantages in specific activities.</p>
+                        <p>• <strong>Streaks reward consistency.</strong> Log in daily to build your streak multiplier.</p>
+                        <p>• <strong>Collaboration is rewarded.</strong> Cross-team work earns bonus points for both factions.</p>
+                        <p>• <strong>This tracks real work.</strong> The game doesn't add new work — it rewards what you already do.</p>
+                    </div>
+                </div>
+
+                <!-- XP Quick Reference -->
+                <div style="margin-top:1.5rem;padding:1.2rem;background:var(--bg-dark);border:1px solid rgba(201,168,76,0.2);border-radius:12px;">
+                    <h4 style="font-family:'Cinzel',serif;color:var(--gold);margin-bottom:0.8rem;">⭐ XP Quick Reference</h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-size:0.8rem;">
+                        <span style="color:var(--text-muted);">Trivia (Easy/Med/Hard)</span><span style="color:var(--gold-dark);">+10/+25/+50 per correct</span>
+                        <span style="color:var(--text-muted);">Word Scramble</span><span style="color:var(--gold-dark);">+15 per word</span>
+                        <span style="color:var(--text-muted);">Rapid Fire</span><span style="color:var(--gold-dark);">+5 per correct</span>
+                        <span style="color:var(--text-muted);">Match Pairs</span><span style="color:var(--gold-dark);">+20 per match</span>
+                        <span style="color:var(--text-muted);">Tasks (real work)</span><span style="color:var(--gold-dark);">+10 to +125</span>
+                        <span style="color:var(--text-muted);">Collaboration Log</span><span style="color:var(--gold-dark);">+30</span>
+                        <span style="color:var(--text-muted);">Boss Raid</span><span style="color:var(--gold-dark);">+25 per correct</span>
+                        <span style="color:var(--text-muted);">Legendary Quests</span><span style="color:var(--gold-dark);">+125 to +200</span>
+                    </div>
+                </div>
+
+                <div style="text-align:center;margin-top:2rem;margin-bottom:1rem;">
+                    <button class="btn-guild" id="btn-tutorial-start">Begin Your Journey</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game-data.js"></script>
+    <script src="expanded-trivia.js"></script>
+    <script src="scenario-trivia.js"></script>
+    <script src="case-studies.js"></script>
+    <script src="crcr-exam-mode.js"></script>
+    <script src="mentor.js"></script>
+    <script src="game-engine.js"></script>
+    <script src="cinematics.js"></script>
+    <script src="mini-games.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
