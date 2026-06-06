@@ -39,11 +39,19 @@ class MiniGames {
 
         // Show story intro with Archon Meritus
         const mentorMsg = typeof MENTOR !== 'undefined' ? MENTOR.getBeforeMessage('trivia', difficulty) : storyIntros[difficulty];
-        const mentorIcon = typeof MENTOR !== 'undefined' && MENTOR.img ? `<img src="${MENTOR.img}" alt="${MENTOR.name}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-dark);" onerror="this.outerHTML='<span style=font-size:3rem>${MENTOR.icon}</span>'">` : `<div style="font-size:3rem;">${typeof MENTOR !== 'undefined' ? MENTOR.icon : '📜'}</div>`;
+        const mentorImgSrc = typeof MENTOR !== 'undefined' && MENTOR.img ? MENTOR.img : '';
+        const mentorIconFallback = typeof MENTOR !== 'undefined' ? MENTOR.icon : '📜';
+        const mentorName = typeof MENTOR !== 'undefined' ? MENTOR.name : '';
+        let mentorIcon;
+        if (mentorImgSrc) {
+            mentorIcon = '<img src="' + mentorImgSrc + '" alt="Mentor" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-dark);">';
+        } else {
+            mentorIcon = '<div style="font-size:3rem;">' + mentorIconFallback + '</div>';
+        }
         container.innerHTML = `
             <div style="text-align:center;padding:1.5rem;">
                 ${mentorIcon}
-                <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold-dark);margin:0.5rem 0;">${typeof MENTOR !== 'undefined' ? MENTOR.name : ''}</div>
+                <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold-dark);margin:0.5rem 0;">${mentorName}</div>
                 <p style="color:var(--text-light);font-size:0.9rem;line-height:1.7;max-width:500px;margin:0 auto 1.5rem;font-style:italic;padding:1rem;background:rgba(0,0,0,0.15);border-radius:10px;border-left:3px solid var(--gold-dark);">"${mentorMsg}"</p>
                 <button class="btn-guild" id="btn-start-challenge">Begin Challenge</button>
             </div>
@@ -327,7 +335,6 @@ class MiniGames {
     // Utilities
     shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     scrambleWord(w) { let a = w.split(''); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } if (a.join('') === w) [a[0], a[a.length-1]] = [a[a.length-1], a[0]]; return a.join(''); }
-}
 
 
     // ===== CASE STUDY (Multi-step linked scenarios) =====
@@ -860,3 +867,80 @@ class MiniGames {
             document.getElementById('btn-er-done').addEventListener('click', () => { if (onComplete) onComplete(); });
         };
     }
+    // ===== GUILD QUIZ (AOM Guild of SMEs - separate from RCM trivia) =====
+    startGuildQuiz(container, onComplete) {
+        const allQs = GAME_DATA.guildTrivia || [];
+        if (allQs.length === 0) { if (onComplete) onComplete(); return; }
+
+        const questions = this.shuffle([...allQs]).slice(0, 8);
+        let state = { questions, current: 0, score: 0 };
+
+        // Mentor intro
+        container.innerHTML = `
+            <div style="text-align:center;padding:1.5rem;">
+                <div style="font-size:3rem;margin-bottom:0.5rem;">⚜️</div>
+                <h3 style="font-family:'Cinzel',serif;color:var(--gold);font-size:1.2rem;">Guild of SMEs Knowledge Check</h3>
+                <p style="color:var(--text-muted);font-size:0.85rem;margin:0.5rem auto 1.5rem;max-width:400px;">Test your knowledge of the Guild framework, processes, values, and protocols. These questions are specific to how we operate as a guild.</p>
+                <button class="btn-guild" id="btn-start-guild">Begin</button>
+            </div>
+        `;
+
+        document.getElementById('btn-start-guild').addEventListener('click', () => render());
+
+        const render = () => {
+            if (state.current >= state.questions.length) { end(); return; }
+            const q = state.questions[state.current];
+
+            container.innerHTML = `
+                <div class="trivia-hud">
+                    <span>Q${state.current + 1}/${state.questions.length}</span>
+                    <span style="color:var(--gold);">⚜️ Guild Quiz</span>
+                    <span class="score">Score: ${state.score}</span>
+                </div>
+                <div class="trivia-q">${q.question}</div>
+                <div class="trivia-options">${q.answers.map((a, i) => `<button class="trivia-opt" data-i="${i}">${a}</button>`).join('')}</div>
+                <div class="trivia-feedback" id="gq-fb"></div>`;
+
+            container.querySelectorAll('.trivia-opt').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.dataset.i);
+                    container.querySelectorAll('.trivia-opt').forEach(b => {
+                        b.classList.add('disabled');
+                        if (parseInt(b.dataset.i) === q.correct) b.classList.add('correct');
+                        if (parseInt(b.dataset.i) === idx && idx !== q.correct) b.classList.add('incorrect');
+                    });
+                    const fb = document.getElementById('gq-fb');
+                    const explanation = q.explanation ? '<br><span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">' + q.explanation + '</span>' : '';
+                    if (idx === q.correct) { state.score++; fb.innerHTML = '<span style="color:var(--accent-green)">✓ Correct! +15 XP</span>' + explanation; }
+                    else { fb.innerHTML = '<span style="color:var(--accent-red)">✗ Incorrect</span>' + explanation; }
+                    setTimeout(() => { state.current++; render(); }, 2500);
+                });
+            });
+        };
+
+        const end = () => {
+            const totalXP = state.score * 15;
+            const gold = state.score * 5;
+            if (totalXP > 0) this.engine.addXP(totalXP, 'study');
+            if (gold > 0) this.engine.addGold(gold);
+            this.engine.player.minigamesCompleted++;
+            this.engine.save();
+            this.engine.updateHUD();
+
+            const perfect = state.score === state.questions.length;
+            container.innerHTML = `
+                <div class="results-box">
+                    <h3>${perfect ? '⚜️ Guild Master!' : state.score >= 5 ? '🎉 Well Done!' : '📖 Review the Guild SOP'}</h3>
+                    <div class="results-stats">
+                        <div class="r-stat"><div class="r-val">${state.score}/${state.questions.length}</div><div class="r-label">Correct</div></div>
+                        <div class="r-stat"><div class="r-val">${totalXP}</div><div class="r-label">XP</div></div>
+                    </div>
+                    <button class="btn-guild" id="btn-gq-again">Play Again</button>
+                    <button class="btn-guild btn-guild-alt" id="btn-gq-done">Done</button>
+                </div>`;
+            document.getElementById('btn-gq-again').addEventListener('click', () => this.startGuildQuiz(container, onComplete));
+            document.getElementById('btn-gq-done').addEventListener('click', () => { if (onComplete) onComplete(); });
+        };
+    }
+
+}

@@ -431,7 +431,24 @@ h1, h2, h3, h4 {
 .faction-card.selected {
     border-color: var(--gold);
     box-shadow: var(--glow-gold);
-    background: rgba(255, 215, 0, 0.05);
+    background-color: rgba(255, 215, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+/* When selected with background image, overlay for text readability */
+.faction-card.selected::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 10px;
+    z-index: 0;
+}
+
+.faction-card.selected > * {
+    position: relative;
+    z-index: 1;
 }
 
 .faction-banner {
@@ -2570,10 +2587,12 @@ h1, h2, h3, h4 {
 
 /* ===== FACTION & MONSTER IMAGES ===== */
 .faction-img {
-    width: 55px;
-    height: 55px;
-    object-fit: contain;
-    border-radius: 50%;
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 3px solid rgba(201, 168, 76, 0.4);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .monster-sprite img {
@@ -2590,3 +2609,10 @@ h1, h2, h3, h4 {
 .map-monster[data-level="5"] .monster-sprite img { max-width: 65px; }
 .map-monster[data-level="6"] .monster-sprite img { max-width: 70px; }
 .map-monster[data-level="7"] .monster-sprite img { max-width: 80px; }
+
+/* Fix faction card click-through on images */
+.faction-banner img,
+.faction-banner .faction-chibi,
+.faction-img {
+    pointer-events: none;
+}

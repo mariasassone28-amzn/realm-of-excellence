@@ -55,8 +55,18 @@ let selectedHouse = null;
 
 document.querySelectorAll('.faction-card').forEach(card => {
     card.addEventListener('click', () => {
-        document.querySelectorAll('.faction-card').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.faction-card').forEach(c => {
+            c.classList.remove('selected');
+            c.style.backgroundImage = '';
+        });
         card.classList.add('selected');
+        // Set the banner image as background when selected
+        const img = card.dataset.img;
+        if (img) {
+            card.style.backgroundImage = 'url(' + img + ')';
+            card.style.backgroundSize = 'cover';
+            card.style.backgroundPosition = 'center';
+        }
         selectedHouse = card.dataset.house;
         document.getElementById('name-section').style.display = 'block';
         document.getElementById('player-name').focus();
@@ -232,13 +242,15 @@ function renderWorldMap() {
     ).join('');
 
     // Monsters
-    html += monsters.map(m => `
+    html += monsters.map(m => {
+        const imgTag = '<img src="' + m.img + '" alt="' + m.name + '" style="width:100%;height:auto;">';
+        return `
         <div class="map-monster" data-monster="${m.id}" data-game="${m.game}" data-diff="${m.difficulty || ''}" data-level="${m.level}" style="left:${m.x}%;top:${m.y}%;">
             <div class="monster-aura"></div>
-            <div class="monster-sprite ${m.aggressive ? 'aggressive' : ''}"><img src="${m.img}" alt="${m.name}" style="width:100%;height:auto;" onerror="this.outerHTML='${m.emoji}'"></div>
+            <div class="monster-sprite ${m.aggressive ? 'aggressive' : ''}">${imgTag}</div>
             <div class="monster-label">${m.name} <span class="monster-level">Lv.${m.level}</span></div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 
     // Map nodes
     html += GAME_DATA.mapNodes.map(node => `
@@ -319,7 +331,8 @@ function openLocation(locId) {
             'library': { icon: '📚', name: 'Study Hall', desc: 'Read SOP materials', reward: '+10 XP/chapter' },
             'case-study': { icon: '📋', name: 'Case Study', desc: 'Multi-step real scenarios', reward: '+60-75 XP' },
             'wwyd': { icon: '🤔', name: 'What Would You Do?', desc: 'Judgment & Leadership Principles', reward: '+30 XP each' },
-            'exam-mode': { icon: '📝', name: 'CRCR Practice Exam', desc: '25 questions, timed, all domains', reward: '+150 XP if pass' }
+            'exam-mode': { icon: '📝', name: 'CRCR Practice Exam', desc: '25 questions, timed, all domains', reward: '+150 XP if pass' },
+            'guild-quiz': { icon: '⚜️', name: 'Guild Knowledge', desc: 'AOM Guild of SMEs quiz', reward: '+15 XP each' }
         };
 
         body.innerHTML = `
@@ -356,6 +369,7 @@ function openLocation(locId) {
                 else if (act === 'case-study') games.startCaseStudy(body, () => openLocation(locId));
                 else if (act === 'wwyd') games.startWWYD(body, () => openLocation(locId));
                 else if (act === 'exam-mode') games.startExamMode(body, () => openLocation(locId));
+                else if (act === 'guild-quiz') games.startGuildQuiz(body, () => openLocation(locId));
             });
         });
     });

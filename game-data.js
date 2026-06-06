@@ -45,7 +45,7 @@ const GAME_DATA = {
         { id: 'audit', name: 'Audit Outpost', icon: '🏰', x: 28, y: 72, completed: true,
           desc: 'Test your auditing precision.', activities: ['match-pairs', 'trivia'] },
         { id: 'mentorship', name: 'Mentorship Keep', icon: '🏯', x: 22, y: 48,
-          desc: 'Learn from the masters. Study SOPs and practice teaching.', activities: ['library', 'case-study', 'wwyd'] },
+          desc: 'Learn from the masters. Study SOPs and Guild knowledge.', activities: ['guild-quiz', 'library', 'case-study', 'wwyd'] },
         { id: 'deepdive', name: 'Deep Dive Canyon', icon: '🌋', x: 48, y: 60,
           desc: 'Word scrambles and advanced scenario challenges.', activities: ['word-scramble', 'case-study', 'rapid-fire'] },
         { id: 'future', name: 'Future Outpost', icon: '🍰', x: 45, y: 30,
@@ -220,38 +220,59 @@ const GAME_DATA = {
     },
 
     // Trivia questions
+    // Base trivia - ONLY RCM/CRCR content (NOT Guild-specific)
     triviaQuestions: {
         apprentice: [
             { question: 'What does RCM stand for?', answers: ['Revenue Cycle Management', 'Resource Control Method', 'Regulatory Compliance Manual', 'Record Collection Module'], correct: 0 },
-            { question: 'What is the Single Source of Truth (SSoT) for all official SOP content?', answers: ['SharePoint', 'OneSource', 'Amazon Approvals', 'Google Drive'], correct: 1 },
-            { question: 'What system is used for formal approval hierarchy in the Guild?', answers: ['Slack', 'Email', 'Amazon Approvals', 'JIRA'], correct: 2 },
-            { question: 'How often does the Guild hold its regular meetings?', answers: ['Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'], correct: 1 },
-            { question: 'What is the standard duration of a Guild meeting?', answers: ['15 minutes', '30 minutes', '45 minutes', '60 minutes'], correct: 1 },
-            { question: 'Which guild value is NOT one of the five core values?', answers: ['Integrity', 'Speed', 'Empathy', 'Excellence'], correct: 1 },
+            { question: 'How many steps are in the RCM journey?', answers: ['8', '10', '12', '15'], correct: 2 },
+            { question: 'Which step comes FIRST in the RCM cycle?', answers: ['Charge Capture', 'Preregistration & Scheduling', 'Insurance Verification', 'Claim Submission'], correct: 1 },
             { question: 'What does SOP stand for?', answers: ['Standard Operating Procedure', 'System of Operations', 'Structured Operational Plan', 'Service Optimization Protocol'], correct: 0 },
-            { question: 'Who serves as the primary liaison between the guild and senior leadership?', answers: ['Core Member', 'Contributing Member', 'Founder', 'CCB Chair'], correct: 2 }
+            { question: 'What does EOB stand for?', answers: ['Explanation of Benefits', 'End of Billing', 'Electronic Order Batch', 'Estimate of Balance'], correct: 0 },
+            { question: 'What does ERA stand for?', answers: ['Electronic Remittance Advice', 'Employer Revenue Account', 'Escalation Review Alert', 'Enrollment Registration Activity'], correct: 0 },
+            { question: 'What are the THREE phases of the revenue cycle?', answers: ['Pre-Service, Time of Service, Post-Service', 'Billing, Coding, Collections', 'Intake, Processing, Output', 'Registration, Treatment, Payment'], correct: 0 },
+            { question: 'What is a clean claim?', answers: ['A claim paid on first attempt without errors', 'A claim paid in full', 'A claim with no patient balance', 'A claim on paper'], correct: 0 }
         ],
         journeyman: [
-            { question: 'What is the first step in the Guild Process lifecycle?', answers: ['Collaborative Drafting', 'Pre-Drafting Scoping', 'Initiation', 'Formal Approvals'], correct: 2 },
-            { question: 'What triggers the automated notification to the relevant audience?', answers: ['Draft completion', 'Final approval', 'Guild meeting vote', 'Founder decision'], correct: 1 },
-            { question: 'Which of these is OUT of scope for the Guild?', answers: ['SOP Documentation', 'Root Cause Analysis', 'IT System Administration', 'Training Materials'], correct: 2 },
-            { question: 'What is the purpose of the Vetting Period?', answers: ['Performance review', 'Guild members review and provide feedback on drafts', 'Budget approval', 'System testing'], correct: 1 },
-            { question: 'What does the Focus Targeted Remediation Audit assess?', answers: ['System performance', 'Budget compliance', 'Whether associates have up-to-date knowledge', 'Customer satisfaction'], correct: 2 },
-            { question: 'What is the SOP number for the Focus Targeted Remediation Audit Protocol?', answers: ['CHB-TQ-SOP-2026-001', 'CHB-TQ-SOP-2026-003.V1', 'HFO-SOP-MNL-002', 'TQ-AUDIT-001'], correct: 1 },
-            { question: 'What rating indicates a significant knowledge gap in a FOCUS audit?', answers: ['✓ Current', '⚠ Needs Refresh', '✗ Gap Identified', '⊘ Not Applicable'], correct: 2 },
-            { question: 'Who is responsible for monitoring quality metrics post-implementation?', answers: ['IT Department', 'The Guild', 'External Auditors', 'HR'], correct: 1 }
+            { question: 'What is the Allowed Amount on an EOB?', answers: ['What the provider billed', 'Maximum amount the payer agreed to pay', 'What the patient owes', 'Total claim value'], correct: 1 },
+            { question: 'What does CARC stand for?', answers: ['Claim Adjustment Reason Code', 'Clinical Authorization Review Code', 'Cost Allocation Revenue Category', 'Compliance Audit Report Card'], correct: 0 },
+            { question: 'The adjustment group code PR means:', answers: ['Provider Responsibility', 'Patient Responsibility', 'Payer Reimbursement', 'Prior Review'], correct: 1 },
+            { question: 'The adjustment group code CO means:', answers: ['Collection Order', 'Contractual Obligation', 'Compliance Override', 'Coding Omission'], correct: 1 },
+            { question: 'What does HIPAA stand for?', answers: ['Health Insurance Portability and Accountability Act', 'Healthcare Information Privacy and Access Act', 'Hospital Insurance Payment and Audit Act', 'Health Information Protection and Authorization Act'], correct: 0 },
+            { question: 'What is PHI?', answers: ['Public Health Index', 'Protected Health Information', 'Patient Hospital Invoice', 'Physician Health Insurance'], correct: 1 },
+            { question: 'CMS-1500 is used for:', answers: ['Institutional claims (hospitals)', 'Professional claims (physicians/outpatient)', 'Medicare enrollment', 'Patient registration'], correct: 1 },
+            { question: 'What is Coinsurance?', answers: ['A second insurance plan', 'Patient percentage share after deductible is met', 'Late payment penalty', 'Provider cost share'], correct: 1 }
         ],
         master: [
-            { question: 'In the Guild Process, what happens immediately after Formal Approvals?', answers: ['Publication to SSoT', 'Automated Documentation Control', 'Training Roll-out', 'Implementation'], correct: 1 },
-            { question: 'What is the target percentage for SMEs with current knowledge?', answers: ['75%+', '80%+', '85%+', '90%+'], correct: 3 },
-            { question: 'What is the target timeframe to close knowledge gaps?', answers: ['<7 days', '<14 days', '<30 days', '<60 days'], correct: 2 },
-            { question: 'Which body has Final Decision-Making Authority over SOPs?', answers: ['The Guild Founder', 'Core Members', 'CCB and senior leadership', 'Contributing Members'], correct: 2 },
-            { question: 'What is the recommended rotation for multi-team FOCUS audits?', answers: ['One team per day', 'One team per week over 4 weeks', 'All teams same day', 'Random selection'], correct: 1 },
-            { question: 'What document number format does the Guild SOP use?', answers: ['GUILD-001', 'HFO-SOP-MNL-002', 'RCM-DOC-001', 'AOM-SOP-001'], correct: 1 },
-            { question: 'Core Members now serve as what additional role per v2.1?', answers: ['Project managers', 'Backup auditors', 'System administrators', 'Budget approvers'], correct: 1 },
-            { question: 'What is the backup auditor availability requirement?', answers: ['Same day', '24-hour', '48-hour', '72-hour'], correct: 1 }
+            { question: 'Resubmission vs. Appeal — the key difference:', answers: ['Resubmissions cost more', 'Resubmission corrects OUR error; Appeal challenges the PAYER decision', 'Appeals are faster', 'No difference'], correct: 1 },
+            { question: 'What is AR Aging?', answers: ['Patient age', 'How long claims have been outstanding without payment', 'Age of provider contract', 'Time since last audit'], correct: 1 },
+            { question: 'What does Collections Yield measure?', answers: ['Number of calls', 'Percentage of billed charges actually collected', 'Patient satisfaction', 'Claims submitted'], correct: 1 },
+            { question: 'Days in AR benchmark for the industry is:', answers: ['10-20 days', '35-45 days', '60-90 days', '120+ days'], correct: 1 },
+            { question: 'A low Clean Claim Rate signals:', answers: ['Good performance', 'Upstream data quality problems compounding into denials', 'Fast payment', 'Efficient coding'], correct: 1 },
+            { question: 'What is First Contact Resolution (FCR)?', answers: ['First time filing a claim', 'Resolving a patient inquiry completely on the first interaction', 'First denial appeal', 'Initial patient registration'], correct: 1 },
+            { question: 'The Post-Service flow in correct order is:', answers: ['Payment > Denial > Submission > Billing', 'Submission > Adjudication > Payment Posting > Denial Management', 'Denial > Appeal > Payment > Collections', 'Coding > Submission > Payment > Audit'], correct: 1 },
+            { question: 'Core Members now serve as what additional role per v2.1?', answers: ['Project managers', 'Backup auditors', 'System administrators', 'Budget approvers'], correct: 1 }
         ]
     },
+
+    // Guild-specific questions (separate mini-game)
+    guildTrivia: [
+        { question: 'What is the Single Source of Truth (SSoT) for all official SOP content?', answers: ['SharePoint', 'OneSource', 'Amazon Approvals', 'Google Drive'], correct: 1, explanation: 'OneSource serves as the official Single Source of Truth for all published SOPs.' },
+        { question: 'What system is used for formal approval hierarchy in the Guild?', answers: ['Slack', 'Email', 'Amazon Approvals', 'JIRA'], correct: 2, explanation: 'Amazon Approvals manages the formal approval workflow and serves as the audit trail.' },
+        { question: 'How often does the Guild hold its regular meetings?', answers: ['Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'], correct: 1, explanation: 'The Guild meets bi-weekly for 30-minute sessions.' },
+        { question: 'What is the standard duration of a Guild meeting?', answers: ['15 minutes', '30 minutes', '45 minutes', '60 minutes'], correct: 1, explanation: '30 minutes: SOP updates (10min), Knowledge Share (10min), Action Items (5min), Open Discussion (5min).' },
+        { question: 'Which guild value is NOT one of the five core values?', answers: ['Integrity', 'Speed', 'Empathy', 'Excellence'], correct: 1, explanation: 'The five values are: Integrity, Ownership, Excellence, Empathy, Together.' },
+        { question: 'Who serves as the primary liaison between the guild and senior leadership?', answers: ['Core Member', 'Contributing Member', 'Founder', 'CCB Chair'], correct: 2, explanation: 'The Guild Founder establishes the mission, manages initiatives, and liaises with leadership.' },
+        { question: 'What is the first step in the Guild Process lifecycle?', answers: ['Collaborative Drafting', 'Pre-Drafting Scoping', 'Initiation', 'Formal Approvals'], correct: 2, explanation: 'Initiation: A need is identified through quality audits, RCA, or new operational requirements.' },
+        { question: 'Which of these is OUT of scope for the Guild?', answers: ['SOP Documentation', 'Root Cause Analysis', 'IT System Administration', 'Training Materials'], correct: 2, explanation: 'IT/System Admin is explicitly out of scope. The Guild focuses on process improvement and knowledge management.' },
+        { question: 'What does the FOCUS Protocol assess?', answers: ['System performance', 'Budget compliance', 'Whether associates have up-to-date knowledge', 'Customer satisfaction'], correct: 2, explanation: 'FOCUS (formerly Dipstick) assesses tenured associates current knowledge on specific topics.' },
+        { question: 'What is the SOP number for the FOCUS Protocol?', answers: ['CHB-TQ-SOP-2026-001', 'CHB-TQ-SOP-2026-003.V1', 'HFO-SOP-MNL-002', 'TQ-AUDIT-001'], correct: 1, explanation: 'CHB-TQ-SOP-2026-003.V1 is the FOCUS Targeted Remediation Audit Protocol.' },
+        { question: 'What rating indicates a significant knowledge gap in a FOCUS audit?', answers: ['Current', 'Needs Refresh', 'Gap Identified', 'Not Applicable'], correct: 2, explanation: 'Rating scale: ✓ Current, ⚠ Needs Refresh, ✗ Gap Identified.' },
+        { question: 'What is the target percentage for SMEs with current knowledge?', answers: ['75%+', '80%+', '85%+', '90%+'], correct: 3, explanation: 'Target is 90%+ of SMEs rating Current on assessed topics.' },
+        { question: 'What is the target timeframe to close knowledge gaps?', answers: ['<7 days', '<14 days', '<30 days', '<60 days'], correct: 2, explanation: 'Knowledge gaps should be closed within 30 days through targeted training.' },
+        { question: 'The Guild has final decision-making authority over SOPs. True or False?', answers: ['True', 'False — CCB and senior leadership have final authority', 'True — for minor SOPs only', 'Depends on the SOP type'], correct: 1, explanation: 'The CCB (Change Control Board) and senior leadership have Final Decision-Making Authority.' },
+        { question: 'What is the backup auditor availability requirement for Core Members?', answers: ['Same day', '24-hour', '48-hour', '72-hour'], correct: 1, explanation: 'Core Members must maintain 24-hour backup auditor availability when needed (v2.1).' },
+        { question: 'The FOCUS Protocol SOP number is CHB-TQ-SOP-2026-003.V1.', answers: ['True', 'False'], correct: 0, explanation: 'Correct. This is the official document number.' }
+    ],
 
     wordScramble: [
         { word: 'REVENUE', hint: '_____ Cycle Management' },
