@@ -517,13 +517,29 @@ class MiniGames {
 
 
     // ===== CRCR EXAM MODE =====
-    // Simulates the real exam: 25 questions, 30-min timer, domain scoring, pass/fail
+    // Simulates the real HFMA CRCR exam: 75 questions, 90 minutes, 70% to pass
     startExamMode(container, onComplete) {
         const allQs = typeof CRCR_EXAM_QUESTIONS !== 'undefined' ? [...CRCR_EXAM_QUESTIONS] : [];
-        if (allQs.length === 0) { if (onComplete) onComplete(); return; }
+        // Also pull from expanded and scenario pools for more questions
+        const extraQs = [];
+        if (typeof EXPANDED_TRIVIA !== 'undefined') {
+            Object.values(EXPANDED_TRIVIA).forEach(arr => arr.forEach(q => {
+                if (!q.domain) q.domain = 'revenue-cycle';
+                extraQs.push(q);
+            }));
+        }
+        if (typeof SCENARIO_TRIVIA !== 'undefined') {
+            Object.values(SCENARIO_TRIVIA).forEach(arr => arr.forEach(q => {
+                if (!q.domain) q.domain = 'post-service';
+                extraQs.push(q);
+            }));
+        }
 
-        const questions = this.shuffle(allQs).slice(0, 25);
-        const totalTime = 30 * 60; // 30 minutes in seconds
+        const combined = [...allQs, ...extraQs];
+        if (combined.length === 0) { if (onComplete) onComplete(); return; }
+
+        const questions = this.shuffle(combined).slice(0, 75);
+        const totalTime = 90 * 60; // 90 minutes in seconds
         let state = {
             questions,
             current: 0,
@@ -537,7 +553,7 @@ class MiniGames {
 
         // Initialize domain tracking
         Object.keys(CRCR_DOMAINS).forEach(d => { state.domainScores[d] = 0; state.domainTotals[d] = 0; });
-        questions.forEach(q => { state.domainTotals[q.domain] = (state.domainTotals[q.domain] || 0) + 1; });
+        questions.forEach(q => { state.domainTotals[q.domain || 'revenue-cycle'] = (state.domainTotals[q.domain || 'revenue-cycle'] || 0) + 1; });
 
         // Start timer
         state.timer = setInterval(() => {
@@ -558,11 +574,20 @@ class MiniGames {
                 <div style="font-size:3rem;margin-bottom:0.5rem;">📝</div>
                 <h3 style="font-family:'Cinzel',serif;color:var(--gold);font-size:1.3rem;">CRCR Practice Exam</h3>
                 <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.6;max-width:450px;margin:0.5rem auto 1rem;">
-                    25 questions · 30 minutes · All 6 CRCR domains<br>
-                    Passing score: 70% (18/25)<br>
-                    Results will show your domain strengths and weaknesses.
+                    75 multiple-choice questions · 90 minutes · One sitting<br>
+                    Passing score: 70% (53/75)<br>
+                    All 6 CRCR domains · Results show strengths and weaknesses
                 </p>
-                <p style="color:var(--accent-orange);font-size:0.75rem;margin-bottom:1.5rem;">This is a practice simulation. It does not replace official HFMA study materials.</p>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.8rem;text-align:left;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6;">
+                    <strong style="color:var(--text-light);">Content covers:</strong><br>
+                    • Patient Access (scheduling, verification, co-pays)<br>
+                    • Billing & Claims (codes, submissions, appeals)<br>
+                    • Compliance (HIPAA, EMTALA, privacy)<br>
+                    • Financial Policies (charity care, self-pay, payments)<br>
+                    • Denial Management & Resolution<br>
+                    • KPIs & Revenue Integrity
+                </div>
+                <p style="color:var(--accent-orange);font-size:0.7rem;margin-bottom:1.5rem;">This is a practice simulation based on HFMA CRCR exam format. It does not replace official HFMA study materials or the CRCR Concept Guide.</p>
                 <button class="btn-guild" id="btn-start-exam">Start Exam</button>
             </div>
         `;
@@ -578,7 +603,7 @@ class MiniGames {
             container.innerHTML = `
                 <div style="padding:0.5rem;">
                     <div class="trivia-hud">
-                        <span>Q${state.current + 1}/25</span>
+                        <span>Q${state.current + 1}/${state.questions.length}</span>
                         <span id="exam-timer" style="color:var(--gold);">${min}:${sec.toString().padStart(2, '0')}</span>
                         <span class="score">${state.score}/${state.current} correct</span>
                     </div>
@@ -601,9 +626,12 @@ class MiniGames {
 
                     if (idx === q.correct) {
                         state.score++;
-                        state.domainScores[q.domain]++;
+                        state.domainScores[q.domain || 'revenue-cycle']++;
+                    } else {
+                        // Track wrong answers for Error Review
+                        this.engine.trackWrongAnswer(q.question, q.answers[q.correct], q.explanation || '', q.domain || 'revenue-cycle');
                     }
-                    state.answers.push({ question: q.question, domain: q.domain, correct: idx === q.correct, explanation: q.explanation });
+                    state.answers.push({ question: q.question, domain: q.domain || 'revenue-cycle', correct: idx === q.correct, explanation: q.explanation, correctAnswer: q.answers[q.correct] });
 
                     // No explanation during exam (like real test) — just move on
                     setTimeout(() => { state.current++; renderQuestion(); }, 800);
@@ -616,6 +644,7 @@ class MiniGames {
             const pct = Math.round((state.score / state.questions.length) * 100);
             const passed = pct >= 70;
             const xpEarned = passed ? 150 : Math.round(pct * 0.8);
+            const wrongCount = state.questions.length - state.score;
 
             if (xpEarned > 0) this.engine.addXP(xpEarned, 'study');
             this.engine.player.minigamesCompleted++;
@@ -670,7 +699,7 @@ class MiniGames {
                         <div style="font-size:3rem;">${passed ? '🎉' : '📖'}</div>
                         <h3 style="font-family:'Cinzel',serif;color:${passed ? 'var(--accent-green)' : 'var(--accent-red)'};font-size:1.4rem;">${passed ? 'PASSED' : 'NOT YET'}</h3>
                         <div style="font-family:'Cinzel',serif;font-size:2.5rem;color:var(--gold);margin:0.3rem 0;">${pct}%</div>
-                        <p style="color:var(--text-muted);font-size:0.8rem;">${state.score}/25 correct · Passing: 70% (18/25)</p>
+                        <p style="color:var(--text-muted);font-size:0.8rem;">${state.score}/${state.questions.length} correct · Passing: 70% (${Math.ceil(state.questions.length * 0.7)}/${state.questions.length})</p>
                         <p style="color:var(--gold-dark);font-size:0.75rem;margin-top:0.3rem;">+${xpEarned} XP earned</p>
                     </div>
 
@@ -684,14 +713,27 @@ class MiniGames {
                         </div>
                     ` : ''}
 
+                    ${wrongCount > 0 ? `
+                        <div style="margin-top:1rem;padding:0.8rem;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:8px;">
+                            <p style="font-size:0.75rem;color:var(--accent-red);font-weight:700;margin-bottom:0.3rem;">🔄 ${wrongCount} questions added to your Error Review queue</p>
+                            <p style="font-size:0.7rem;color:var(--text-muted);">Go to Train → Error Review to study these items with Archon Meritus. Get each right twice to master it and remove it from your queue.</p>
+                        </div>
+                    ` : ''}
+
                     <div style="text-align:center;margin-top:1.5rem;">
                         <button class="btn-guild" id="btn-exam-review">Review Answers</button>
+                        ${wrongCount > 0 ? '<button class="btn-guild" id="btn-exam-errors" style="background:linear-gradient(180deg, var(--accent-orange) 0%, #e65100 100%);border-color:#bf360c;color:white;">Start Error Review</button>' : ''}
                         <button class="btn-guild btn-guild-alt" id="btn-exam-done">Done</button>
                     </div>
                 </div>
             `;
 
             document.getElementById('btn-exam-review').addEventListener('click', () => showReview());
+            if (wrongCount > 0) {
+                document.getElementById('btn-exam-errors').addEventListener('click', () => {
+                    this.startErrorReview(container, onComplete);
+                });
+            }
             document.getElementById('btn-exam-done').addEventListener('click', () => { if (onComplete) onComplete(); });
             const ru = this.engine.checkRankUp(); if (ru) setTimeout(() => this.engine.showRankUp(ru), 500);
         };
