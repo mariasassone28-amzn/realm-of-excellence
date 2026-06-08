@@ -155,6 +155,16 @@ class GameEngine {
         else { this.player.streak = 1; }
         if (this.player.streak > this.player.maxStreak) this.player.maxStreak = this.player.streak;
         this.player.lastLogin = today;
+
+        // Reset daily quests each new day
+        const dailyQuestIds = ['q-trivia-daily', 'q-scramble', 'q-rapid'];
+        if (this.player.completedQuests) {
+            this.player.completedQuests = this.player.completedQuests.filter(id => !dailyQuestIds.includes(id));
+        }
+        if (this.player.questCooldowns) {
+            dailyQuestIds.forEach(id => delete this.player.questCooldowns[id]);
+        }
+
         this.save();
     }
 

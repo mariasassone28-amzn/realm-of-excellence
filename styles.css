@@ -2616,3 +2616,9 @@ h1, h2, h3, h4 {
 .faction-img {
     pointer-events: none;
 }
+
+/* ===== QUEST COOLDOWN ===== */
+.q-type.cooldown {
+    background: rgba(255, 140, 66, 0.2);
+    color: var(--accent-orange);
+}

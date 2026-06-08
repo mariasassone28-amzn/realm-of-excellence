@@ -440,11 +440,48 @@ function showLibrary(container, onBack) {
 // === ACTIVE QUESTS STRIP ===
 function renderActiveQuests() {
     const container = document.getElementById('active-quests');
-    container.innerHTML = GAME_DATA.activeQuests.map((q, i) => `
-        <div class="quest-mini-card">
+    
+    // Build dynamic list based on what hasn't been done today
+    const activeList = [];
+
+    // Check daily quests
+    const dailyQuests = GAME_DATA.quests.filter(q => q.type === 'daily');
+    dailyQuests.forEach(q => {
+        if (!engine.isQuestCompleted(q.id)) {
+            activeList.push({ name: q.name, desc: q.description, xp: q.xp, status: 'Ready', chibi: q.icon });
+        }
+    });
+
+    // Check weekly quests not done
+    const weeklyQuests = GAME_DATA.quests.filter(q => q.type === 'weekly');
+    weeklyQuests.forEach(q => {
+        if (!engine.isQuestCompleted(q.id)) {
+            const pending = engine.player.pendingTasks && engine.player.pendingTasks.some(t => t.taskId === q.id && t.status === 'pending');
+            activeList.push({ name: q.name, desc: q.description, xp: q.xp, status: pending ? '⏳ Pending' : 'Available', chibi: q.icon });
+        }
+    });
+
+    // Check legendary/epic quests not done
+    const epicQuests = GAME_DATA.quests.filter(q => q.type === 'epic' || q.type === 'legendary');
+    epicQuests.forEach(q => {
+        if (!engine.isQuestCompleted(q.id)) {
+            activeList.push({ name: q.name, desc: q.description, xp: q.xp, status: q.type === 'legendary' ? '⭐ LEGENDARY' : 'EPIC', chibi: q.icon });
+        }
+    });
+
+    // Show top 5 most relevant
+    const display = activeList.slice(0, 5);
+
+    if (display.length === 0) {
+        container.innerHTML = '<div class="quest-mini-card"><div class="qm-name" style="text-align:center;color:var(--text-muted);">All quests complete! 🎉</div></div>';
+        return;
+    }
+
+    container.innerHTML = display.map((q, i) => `
+        <div class="quest-mini-card" onclick="document.querySelectorAll('.nav-btn')[1].click();">
             <div class="qm-chibi">${q.chibi}</div>
             <div class="qm-header">
-                <span class="qm-name">${i + 1}. ${q.name}</span>
+                <span class="qm-name">${q.name}</span>
                 <span class="qm-xp">[+${q.xp} XP]</span>
             </div>
             <div class="qm-desc">${q.desc}</div>
@@ -648,7 +685,7 @@ function renderTrainingHub(body) {
             <div class="activity-card" data-hub="exam" style="background:var(--bg-panel);border:2px solid rgba(201,168,76,0.2);border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer;">
                 <div style="font-size:2rem;margin-bottom:0.4rem;">📝</div>
                 <h3 style="font-family:'Cinzel',serif;font-size:0.9rem;color:var(--text-light);">CRCR Practice Exam</h3>
-                <p style="font-size:0.7rem;color:var(--text-muted);">25 Qs · 30 min · Pass/Fail</p>
+                <p style="font-size:0.7rem;color:var(--text-muted);">75 Qs · 90 min · Pass/Fail</p>
             </div>
         </div>
     `;
@@ -703,36 +740,71 @@ function renderGuildHub(body) {
 // === QUEST BOARD ===
 function renderQuestBoard(body) {
     body.innerHTML = `
-        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;text-align:center;">💡 Hover for instructions. Game quests auto-complete. Work quests require proof.</p>
-        ${GAME_DATA.quests.map(q => {
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;text-align:center;">Tap a quest to see instructions. Game quests auto-complete. Work quests require proof.</p>
+        <div id="quest-list-area"></div>
+    `;
+
+    const listArea = document.getElementById('quest-list-area');
+
+    GAME_DATA.quests.forEach(q => {
         const done = engine.isQuestCompleted(q.id);
         const isGameQuest = ['q-trivia-daily', 'q-scramble', 'q-rapid', 'q-certification', 'q-streak-3'].includes(q.id);
         const pending = !isGameQuest && engine.player.pendingTasks && engine.player.pendingTasks.some(t => t.taskId === q.id && t.status === 'pending');
-        
+
+        // Check cooldown for game quests (1 hour)
+        let onCooldown = false;
+        let cooldownRemaining = '';
+        if (isGameQuest && !done) {
+            const lastPlay = engine.player.questCooldowns && engine.player.questCooldowns[q.id];
+            if (lastPlay) {
+                const elapsed = Date.now() - lastPlay;
+                const cooldownMs = 60 * 60 * 1000; // 1 hour
+                if (elapsed < cooldownMs) {
+                    onCooldown = true;
+                    const minsLeft = Math.ceil((cooldownMs - elapsed) / 60000);
+                    cooldownRemaining = minsLeft >= 60 ? '1hr' : minsLeft + 'min';
+                }
+            }
+        }
+
         let statusText = q.type.toUpperCase();
         let statusClass = q.type;
         if (done) { statusText = '✓ COMPLETED'; statusClass = 'done'; }
         else if (pending) { statusText = '⏳ PENDING REVIEW'; statusClass = 'pending'; }
+        else if (onCooldown) { statusText = '⏱️ ' + cooldownRemaining; statusClass = 'cooldown'; }
 
-        return `
-            <div class="quest-card has-tooltip ${done ? 'completed' : ''} ${pending ? 'pending' : ''}">
-                <div class="q-icon">${q.icon}</div>
-                <div class="q-info">
-                    <div class="q-name">${q.name}</div>
-                    <div class="q-desc">${q.description}</div>
-                    <div class="q-type ${statusClass}">${statusText}</div>
+        const card = document.createElement('div');
+        card.className = `quest-card ${done ? 'completed' : ''} ${pending ? 'pending' : ''}`;
+        card.innerHTML = `
+            <div class="q-icon">${q.icon}</div>
+            <div class="q-info">
+                <div class="q-name">${q.name}</div>
+                <div class="q-desc">${q.description}</div>
+                <div class="q-type ${statusClass}">${statusText}</div>
+                <div class="q-instructions" style="display:none;margin-top:0.5rem;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:6px;border-left:2px solid var(--gold-dark);">
+                    <div style="font-size:0.65rem;color:var(--gold-dark);font-weight:700;margin-bottom:0.2rem;">How to Complete:</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);line-height:1.5;">${q.instructions}</div>
                 </div>
-                <div class="q-xp">+${q.xp} XP</div>
-                ${!done && !pending ? `<button class="quest-go-btn" data-qid="${q.id}" data-xp="${q.xp}" data-game="${isGameQuest}">${isGameQuest ? 'GO' : '📧'}</button>` : ''}
-                <div class="tooltip">
-                    <div class="tooltip-title">📖 How to Complete</div>
-                    <div class="tooltip-text">${q.instructions}</div>
-                </div>
-            </div>`;
-    }).join('')}`;
+            </div>
+            <div class="q-xp">+${q.xp} XP</div>
+            ${!done && !pending && !onCooldown ? `<button class="quest-go-btn" data-qid="${q.id}" data-xp="${q.xp}" data-game="${isGameQuest}">${isGameQuest ? 'GO' : '📧'}</button>` : ''}
+        `;
+
+        // Tap to show/hide instructions
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.quest-go-btn') || e.target.closest('.quest-proof-section')) return;
+            const instructions = card.querySelector('.q-instructions');
+            const isShowing = instructions.style.display === 'block';
+            // Hide all others
+            listArea.querySelectorAll('.q-instructions').forEach(el => el.style.display = 'none');
+            instructions.style.display = isShowing ? 'none' : 'block';
+        });
+
+        listArea.appendChild(card);
+    });
 
     // Quest action handlers
-    body.querySelectorAll('.quest-go-btn').forEach(btn => {
+    listArea.querySelectorAll('.quest-go-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const qid = btn.dataset.qid;
@@ -740,26 +812,94 @@ function renderQuestBoard(body) {
             const isGame = btn.dataset.game === 'true';
 
             if (isGame) {
-                // Game quests auto-complete (trivia, scramble, rapid fire, streak)
-                engine.completeQuest(qid);
-                engine.addXP(xp, 'quest');
-                engine.addGold(Math.floor(xp / 3));
-                engine.updateHUD();
-                renderQuestBoard(body);
+                // Game quests: launch the actual mini-game, auto-complete on success
+                if (!engine.player.questCooldowns) engine.player.questCooldowns = {};
+
+                const onQuestGameComplete = (score, threshold) => {
+                    if (score >= threshold) {
+                        engine.completeQuest(qid);
+                        engine.player.questCooldowns[qid] = Date.now();
+                        engine.addXP(xp, 'quest');
+                        engine.addGold(Math.floor(xp / 3));
+                        engine.save();
+                        engine.updateHUD();
+                        engine.showToast('✓ Quest Complete! +' + xp + ' XP');
+                    } else {
+                        engine.player.questCooldowns[qid] = Date.now();
+                        engine.save();
+                        engine.showToast('Quest not met. Try again in 1 hour.');
+                    }
+                    showSubScreen('Quest Board', renderQuestBoard);
+                };
+
+                // Launch the appropriate mini-game based on quest
+                switch (qid) {
+                    case 'q-trivia-daily':
+                        showSubScreen('Daily Knowledge Check', (gameBody) => {
+                            const origComplete = engine.player.triviaCompleted;
+                            games.startTrivia(gameBody, 'apprentice', () => {
+                                const played = engine.player.triviaCompleted > origComplete;
+                                onQuestGameComplete(played ? 1 : 0, 1);
+                            });
+                        });
+                        break;
+                    case 'q-scramble':
+                        showSubScreen('Word Smith Challenge', (gameBody) => {
+                            const origWords = engine.player.wordsUnscrambled || 0;
+                            games.startWordScramble(gameBody, () => {
+                                const solved = (engine.player.wordsUnscrambled || 0) - origWords;
+                                onQuestGameComplete(solved, 3);
+                            });
+                        });
+                        break;
+                    case 'q-rapid':
+                        showSubScreen('Lightning Round', (gameBody) => {
+                            const origRapid = engine.player.rapidFireCorrect || 0;
+                            games.startRapidFire(gameBody, () => {
+                                const scored = (engine.player.rapidFireCorrect || 0) - origRapid;
+                                onQuestGameComplete(scored, 7);
+                            });
+                        });
+                        break;
+                    case 'q-certification':
+                        showSubScreen('Certification Climb', (gameBody) => {
+                            const origPerfects = engine.player.perfectScores || 0;
+                            games.startTrivia(gameBody, 'master', () => {
+                                const gotPerfect = (engine.player.perfectScores || 0) > origPerfects;
+                                onQuestGameComplete(gotPerfect ? 1 : 0, 1);
+                            });
+                        });
+                        break;
+                    case 'q-streak-3':
+                        // Auto-check: already validated by streak count
+                        if (engine.player.streak >= 3) {
+                            onQuestGameComplete(3, 3);
+                        } else {
+                            engine.showToast('Keep logging in! Streak: ' + engine.player.streak + '/3');
+                        }
+                        break;
+                    default:
+                        // Fallback: launch trivia
+                        showSubScreen('Challenge', (gameBody) => {
+                            games.startTrivia(gameBody, 'apprentice', () => {
+                                onQuestGameComplete(1, 1);
+                            });
+                        });
+                }
             } else {
-                // Work quests need proof — show inline input
+                // Work quests need proof
                 const card = btn.closest('.quest-card');
                 if (card.querySelector('.quest-proof-section')) return;
 
                 const proofDiv = document.createElement('div');
                 proofDiv.className = 'quest-proof-section';
-                proofDiv.style.cssText = 'width:100%;margin-top:0.6rem;padding:0.6rem;background:rgba(0,0,0,0.2);border-radius:6px;grid-column:1/-1;';
+                proofDiv.style.cssText = 'width:100%;margin-top:0.6rem;padding:0.6rem;background:rgba(0,0,0,0.2);border-radius:6px;';
                 proofDiv.innerHTML = `
-                    <div style="font-size:0.7rem;color:var(--gold-dark);font-weight:700;margin-bottom:0.3rem;">📧 Submit proof (email subject, link, or confirmation):</div>
+                    <div style="font-size:0.7rem;color:var(--gold-dark);font-weight:700;margin-bottom:0.3rem;">Submit proof (email subject, link, or confirmation):</div>
                     <input type="text" class="task-verify-input" placeholder="Paste proof here..." style="margin-bottom:0.4rem;">
                     <button class="task-submit-btn">Submit for Review</button>
                 `;
-                card.appendChild(proofDiv);
+                card.querySelector('.q-info').appendChild(proofDiv);
 
                 proofDiv.querySelector('.task-submit-btn').addEventListener('click', () => {
                     const input = proofDiv.querySelector('.task-verify-input');
