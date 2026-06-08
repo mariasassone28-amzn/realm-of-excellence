@@ -5,7 +5,6 @@
 const MENTOR = {
     name: 'Archon Meritus',
     icon: '🧙‍♂️',
-    img: 'images/lookslikeasamurai.png',
     title: 'Guild Sage & First Mentor',
     color: '#c9a84c',
 

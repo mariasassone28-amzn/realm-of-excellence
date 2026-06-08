@@ -199,13 +199,13 @@ function renderWorldMap() {
 
     // Monsters — each has a unique level from 1 to 7
     const monsters = [
-        { id: 'mon-slime', emoji: '👾', img: 'images/jelly.png', name: 'Error Slime', level: 1, x: 18, y: 75, game: 'trivia', difficulty: 'apprentice' },
-        { id: 'mon-spider', emoji: '🕷️', img: 'images/spider.png', name: 'Audit Crawler', level: 2, x: 35, y: 82, game: 'rapid-fire', difficulty: null },
-        { id: 'mon-bat', emoji: '🦇', img: 'images/bat.png', name: 'Denial Bat', level: 3, x: 35, y: 55, game: 'rapid-fire', difficulty: null },
-        { id: 'mon-ghost', emoji: '👻', img: 'images/ghost.png', name: 'Phantom Gap', level: 4, x: 58, y: 40, game: 'word-scramble', difficulty: null },
-        { id: 'mon-dragon', emoji: '🐲', img: 'images/dragon.png', name: 'Variance Drake', level: 5, x: 65, y: 68, game: 'match-pairs', difficulty: null },
-        { id: 'mon-eye', emoji: '👁️', img: 'images/eyeball.png', name: 'Oversight Eye', level: 6, x: 75, y: 38, game: 'trivia', difficulty: 'journeyman' },
-        { id: 'mon-skull', emoji: '💀', img: 'images/lookslikeamonsterstorm.png', name: 'Defect Lord', level: 7, x: 85, y: 15, game: 'trivia', difficulty: 'master', aggressive: true },
+        { id: 'mon-slime', emoji: '👾', name: 'Error Slime', level: 1, x: 18, y: 75, game: 'trivia', difficulty: 'apprentice' },
+        { id: 'mon-spider', emoji: '🕷️', name: 'Audit Crawler', level: 2, x: 35, y: 82, game: 'rapid-fire', difficulty: null },
+        { id: 'mon-bat', emoji: '🦇', name: 'Denial Bat', level: 3, x: 35, y: 55, game: 'rapid-fire', difficulty: null },
+        { id: 'mon-ghost', emoji: '👻', name: 'Phantom Gap', level: 4, x: 58, y: 40, game: 'word-scramble', difficulty: null },
+        { id: 'mon-dragon', emoji: '🐲', name: 'Variance Drake', level: 5, x: 65, y: 68, game: 'match-pairs', difficulty: null },
+        { id: 'mon-eye', emoji: '👁️', name: 'Oversight Eye', level: 6, x: 75, y: 38, game: 'trivia', difficulty: 'journeyman' },
+        { id: 'mon-skull', emoji: '💀', name: 'Defect Lord', level: 7, x: 85, y: 15, game: 'trivia', difficulty: 'master', aggressive: true },
     ];
 
     // SVG path — winding road connecting nodes through the tall map
@@ -242,15 +242,13 @@ function renderWorldMap() {
     ).join('');
 
     // Monsters
-    html += monsters.map(m => {
-        const imgTag = '<img src="' + m.img + '" alt="' + m.name + '" style="width:100%;height:auto;">';
-        return `
+    html += monsters.map(m => `
         <div class="map-monster" data-monster="${m.id}" data-game="${m.game}" data-diff="${m.difficulty || ''}" data-level="${m.level}" style="left:${m.x}%;top:${m.y}%;">
             <div class="monster-aura"></div>
-            <div class="monster-sprite ${m.aggressive ? 'aggressive' : ''}">${imgTag}</div>
+            <div class="monster-sprite ${m.aggressive ? 'aggressive' : ''}">${m.emoji}</div>
             <div class="monster-label">${m.name} <span class="monster-level">Lv.${m.level}</span></div>
-        </div>`;
-    }).join('');
+        </div>
+    `).join('');
 
     // Map nodes
     html += GAME_DATA.mapNodes.map(node => `
