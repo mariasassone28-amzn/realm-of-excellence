@@ -9,7 +9,12 @@ class GameEngine {
 
     load() {
         const data = localStorage.getItem(this.saveKey);
-        if (data) { this.player = JSON.parse(data); return true; }
+        if (data) {
+            this.player = JSON.parse(data);
+            // Backward compat: ensure defeatedMonsters exists
+            if (!this.player.defeatedMonsters) this.player.defeatedMonsters = [];
+            return true;
+        }
         return false;
     }
 
@@ -44,6 +49,7 @@ class GameEngine {
             purchasedItems: [],
             locationsVisited: [],
             unlockedAchievements: [],
+            defeatedMonsters: [],
             createdAt: new Date().toISOString()
         };
         this.save();
@@ -189,6 +195,46 @@ class GameEngine {
     }
 
     isTaskCompleted(taskId) { return this.player.completedTasks.includes(taskId); }
+
+    // Monster Progression
+    defeatMonster(monsterId) {
+        if (!this.player.defeatedMonsters) this.player.defeatedMonsters = [];
+        if (this.player.defeatedMonsters.includes(monsterId)) return false;
+        this.player.defeatedMonsters.push(monsterId);
+        this.save();
+        return true;
+    }
+
+    isMonsterDefeated(monsterId) {
+        if (!this.player.defeatedMonsters) return false;
+        return this.player.defeatedMonsters.includes(monsterId);
+    }
+
+    getHighestDefeatedLevel() {
+        if (!this.player.defeatedMonsters || this.player.defeatedMonsters.length === 0) return 0;
+        // Extract level numbers from monster IDs (format: mon-X where level is stored separately)
+        // We'll use a lookup approach
+        const monsterLevels = {
+            'mon-slime': 1, 'mon-spider': 2, 'mon-bat': 3,
+            'mon-ghost': 4, 'mon-dragon': 5, 'mon-eye': 6, 'mon-skull': 7
+        };
+        let highest = 0;
+        this.player.defeatedMonsters.forEach(id => {
+            if (monsterLevels[id] && monsterLevels[id] > highest) highest = monsterLevels[id];
+        });
+        return highest;
+    }
+
+    canFightMonster(monsterLevel) {
+        // Can fight level 1 always, otherwise must have defeated previous level
+        if (monsterLevel <= 1) return true;
+        return this.getHighestDefeatedLevel() >= monsterLevel - 1;
+    }
+
+    canAccessBoss() {
+        // Must defeat all 7 monsters to access the boss
+        return this.getHighestDefeatedLevel() >= 7;
+    }
 
     // Boss
     damageBoss(amount) {

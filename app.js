@@ -197,39 +197,48 @@ function renderWorldMap() {
         { emoji: '⛰️', x: 50, y: 0, size: 1.8, cls: '' },
     ];
 
-    // Monsters — each has a unique level from 1 to 7
+    // Monsters — zigzag pattern (left-right-left going up the map)
     const monsters = [
-        { id: 'mon-slime', emoji: '👾', name: 'Error Slime', level: 1, x: 18, y: 75, game: 'trivia', difficulty: 'apprentice' },
-        { id: 'mon-spider', emoji: '🕷️', name: 'Audit Crawler', level: 2, x: 35, y: 82, game: 'rapid-fire', difficulty: null },
-        { id: 'mon-bat', emoji: '🦇', name: 'Denial Bat', level: 3, x: 35, y: 55, game: 'rapid-fire', difficulty: null },
-        { id: 'mon-ghost', emoji: '👻', name: 'Phantom Gap', level: 4, x: 58, y: 40, game: 'word-scramble', difficulty: null },
-        { id: 'mon-dragon', emoji: '🐲', name: 'Variance Drake', level: 5, x: 65, y: 68, game: 'match-pairs', difficulty: null },
-        { id: 'mon-eye', emoji: '👁️', name: 'Oversight Eye', level: 6, x: 75, y: 38, game: 'trivia', difficulty: 'journeyman' },
-        { id: 'mon-skull', emoji: '💀', name: 'Defect Lord', level: 7, x: 85, y: 15, game: 'trivia', difficulty: 'master', aggressive: true },
+        { id: 'mon-slime', emoji: '👾', name: 'Error Slime', level: 1, x: 20, y: 88, game: 'trivia', difficulty: 'apprentice' },
+        { id: 'mon-spider', emoji: '🕷️', name: 'Audit Crawler', level: 2, x: 75, y: 76, game: 'rapid-fire', difficulty: null },
+        { id: 'mon-bat', emoji: '🦇', name: 'Denial Bat', level: 3, x: 25, y: 64, game: 'rapid-fire', difficulty: null },
+        { id: 'mon-ghost', emoji: '👻', name: 'Phantom Gap', level: 4, x: 70, y: 52, game: 'word-scramble', difficulty: null },
+        { id: 'mon-dragon', emoji: '🐲', name: 'Variance Drake', level: 5, x: 25, y: 40, game: 'match-pairs', difficulty: null },
+        { id: 'mon-eye', emoji: '👁️', name: 'Oversight Eye', level: 6, x: 72, y: 26, game: 'trivia', difficulty: 'journeyman' },
+        { id: 'mon-skull', emoji: '💀', name: 'Defect Lord', level: 7, x: 45, y: 10, game: 'trivia', difficulty: 'master', aggressive: true },
     ];
 
-    // SVG path — winding road connecting nodes through the tall map
+    // Barriers between levels — environmental obstacles that block the path
+    const barriers = [
+        { level: 2, emoji: '🌊', label: 'Rushing River', x: 48, y: 82, size: 2.2 },
+        { level: 3, emoji: '⛰️', label: 'Stone Ridge', x: 50, y: 70, size: 2.5 },
+        { level: 4, emoji: '🌲🌲🌲', label: 'Dark Forest', x: 48, y: 58, size: 1.8 },
+        { level: 5, emoji: '🌋', label: 'Lava Rift', x: 48, y: 46, size: 2.3 },
+        { level: 6, emoji: '🏔️', label: 'Frozen Peak', x: 50, y: 33, size: 2.5 },
+        { level: 7, emoji: '💀🔥', label: 'Death Gate', x: 50, y: 18, size: 2.0 },
+    ];
+
+    // SVG path — zigzag road going left-right-left up the map
     const pathSVG = `
         <svg class="map-trail" viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;">
-            <!-- Main road path -->
-            <path d="M 14 84 C 18 82 24 78 30 74 
-                     C 36 70 28 60 24 52 
-                     C 20 44 30 42 38 40 
-                     C 44 38 48 50 50 62 
-                     C 52 68 56 58 60 50 
-                     C 64 42 50 35 48 32 
-                     C 46 28 55 25 62 22 
-                     C 68 19 72 22 75 25 
-                     C 78 28 80 40 82 52" 
-                  stroke="#4a2a10" stroke-width="1.4" fill="none" 
-                  stroke-dasharray="3.5,2" opacity="0.6"/>
-            <!-- Branch paths -->
-            <path d="M 30 74 C 34 78 36 82 38 84" 
-                  stroke="#4a2a10" stroke-width="0.9" fill="none" 
-                  stroke-dasharray="2.5,2" opacity="0.4"/>
-            <path d="M 72 22 C 78 18 82 16 86 17" 
-                  stroke="#4a2a10" stroke-width="0.9" fill="none" 
-                  stroke-dasharray="2.5,2" opacity="0.4"/>
+            <!-- Zigzag road Lv1(left) → Lv2(right) → Lv3(left) → Lv4(right) → Lv5(left) → Lv6(right) → Lv7(center-top) -->
+            <path d="M 20 88 C 35 86 55 82 75 76 
+                     C 85 73 55 68 25 64
+                     C 10 62 45 56 70 52
+                     C 85 49 50 44 25 40
+                     C 10 38 45 32 72 26
+                     C 82 23 65 15 45 10" 
+                  stroke="#4a2a10" stroke-width="1.8" fill="none" 
+                  stroke-dasharray="5,3" opacity="0.65"/>
+            <!-- Shadow/depth line -->
+            <path d="M 20 88 C 35 86 55 82 75 76 
+                     C 85 73 55 68 25 64
+                     C 10 62 45 56 70 52
+                     C 85 49 50 44 25 40
+                     C 10 38 45 32 72 26
+                     C 82 23 65 15 45 10" 
+                  stroke="#2a1508" stroke-width="3" fill="none" 
+                  stroke-dasharray="5,3" opacity="0.25"/>
         </svg>
     `;
 
@@ -241,14 +250,31 @@ function renderWorldMap() {
         `<div class="map-deco ${d.cls}" style="left:${d.x}%;top:${d.y}%;font-size:${d.size}rem;">${d.emoji}</div>`
     ).join('');
 
-    // Monsters
-    html += monsters.map(m => `
-        <div class="map-monster" data-monster="${m.id}" data-game="${m.game}" data-diff="${m.difficulty || ''}" data-level="${m.level}" style="left:${m.x}%;top:${m.y}%;">
+    // Barriers between levels (show as blocked if level not yet accessible)
+    html += barriers.map(b => {
+        const isCleared = engine.canFightMonster(b.level); // if you can fight this level, barrier is gone
+        const barrierClass = isCleared ? 'barrier-cleared' : 'barrier-active';
+        return `
+        <div class="map-barrier ${barrierClass}" style="left:${b.x}%;top:${b.y}%;font-size:${b.size}rem;" title="${b.label}">
+            <div class="barrier-icon">${isCleared ? '' : b.emoji}</div>
+            ${!isCleared ? '<div class="barrier-label">' + b.label + '</div>' : ''}
+        </div>
+    `}).join('');
+
+    // Monsters (always show real emoji, but dim/lock styling if not accessible)
+    html += monsters.map(m => {
+        const isDefeated = engine.isMonsterDefeated(m.id);
+        const canFight = engine.canFightMonster(m.level);
+        const lockedClass = !canFight ? 'locked' : '';
+        const defeatedClass = isDefeated ? 'defeated' : '';
+        return `
+        <div class="map-monster ${lockedClass} ${defeatedClass}" data-monster="${m.id}" data-game="${m.game}" data-diff="${m.difficulty || ''}" data-level="${m.level}" style="left:${m.x}%;top:${m.y}%;">
             <div class="monster-aura"></div>
             <div class="monster-sprite ${m.aggressive ? 'aggressive' : ''}">${m.emoji}</div>
             <div class="monster-label">${m.name} <span class="monster-level">Lv.${m.level}</span></div>
+            ${isDefeated ? '<div class="monster-check">✓</div>' : ''}
         </div>
-    `).join('');
+    `}).join('');
 
     // Map nodes
     html += GAME_DATA.mapNodes.map(node => `
@@ -268,19 +294,33 @@ function renderWorldMap() {
         el.addEventListener('click', () => openLocation(el.dataset.loc));
     });
 
-    // Monster click handlers → launch mini-games
+    // Monster click handlers → launch mini-games (with gating check)
     map.querySelectorAll('.map-monster').forEach(el => {
         el.addEventListener('click', () => {
+            const monsterId = el.dataset.monster;
+            const level = parseInt(el.dataset.level);
+            
+            // Check if locked
+            if (!engine.canFightMonster(level)) {
+                engine.showToast(`🔒 Defeat Lv.${level - 1} first!`);
+                return;
+            }
+            // Check if already defeated
+            if (engine.isMonsterDefeated(monsterId)) {
+                engine.showToast('✓ Already defeated! Move to the next level.');
+                return;
+            }
+
             const game = el.dataset.game;
             const diff = el.dataset.diff;
             const monsterName = el.querySelector('.monster-label').textContent;
-            startMonsterBattle(game, diff, monsterName);
+            startMonsterBattle(game, diff, monsterName, monsterId);
         });
     });
 }
 
-// Monster battle → opens mini-game directly
-function startMonsterBattle(gameType, difficulty, monsterName) {
+// Monster battle → opens mini-game directly (marks defeated on completion)
+function startMonsterBattle(gameType, difficulty, monsterName, monsterId) {
     showSubScreen(`⚔️ ${monsterName}`, (body) => {
         body.innerHTML = `
             <div style="text-align:center;margin-bottom:1rem;">
@@ -290,7 +330,14 @@ function startMonsterBattle(gameType, difficulty, monsterName) {
             <div id="monster-game-area"></div>
         `;
         const area = document.getElementById('monster-game-area');
-        const onDone = () => enterGame();
+        const onDone = () => {
+            // Mark monster as defeated on completion
+            if (monsterId && !engine.isMonsterDefeated(monsterId)) {
+                engine.defeatMonster(monsterId);
+                engine.showToast(`✓ ${monsterName} defeated!`);
+            }
+            enterGame();
+        };
 
         switch (gameType) {
             case 'trivia':
@@ -366,7 +413,13 @@ function openLocation(locId) {
                 else if (act === 'library') showLibrary(body, () => openLocation(locId));
                 else if (act === 'case-study') games.startCaseStudy(body, () => openLocation(locId));
                 else if (act === 'wwyd') games.startWWYD(body, () => openLocation(locId));
-                else if (act === 'exam-mode') games.startExamMode(body, () => openLocation(locId));
+                else if (act === 'exam-mode') {
+                    if (!engine.canAccessBoss()) {
+                        engine.showToast('🔒 Defeat all 7 monsters to unlock CRCR Exam Mode!');
+                        return;
+                    }
+                    games.startExamMode(body, () => openLocation(locId));
+                }
                 else if (act === 'guild-quiz') games.startGuildQuiz(body, () => openLocation(locId));
             });
         });
@@ -498,6 +551,12 @@ function updateBossHP() {
 }
 
 document.getElementById('btn-raid').addEventListener('click', () => {
+    // Gate: must defeat all 7 monsters before boss
+    if (!engine.canAccessBoss()) {
+        const highest = engine.getHighestDefeatedLevel();
+        engine.showToast(`🔒 Defeat all monsters first! (${highest}/7 cleared)`);
+        return;
+    }
     document.getElementById('raid-modal').style.display = 'flex';
     document.getElementById('btn-close-raid').style.display = 'none';
     games.startBossRaid(document.getElementById('raid-game-area'), () => {
@@ -519,6 +578,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
             case 'train': showSubScreen('Training Hub', renderTrainingHub); break;
             case 'guild': showSubScreen('Guild Hall', renderGuildHub); break;
             case 'profile': showSubScreen('Guild Profile', renderProfile); break;
+            case 'champion': showSubScreen('🏆 Top Guild Champion', renderChampion); break;
         }
     });
 });
@@ -1394,6 +1454,129 @@ function renderLeaderboard(body) {
 
     // Animate walking characters
     animateLeaderboardChars();
+}
+
+// === TOP GUILD CHAMPION VIEW ===
+function renderChampion(body) {
+    // Get the #1 ranked guild member
+    const entries = [...GAME_DATA.leaderboard];
+    entries.push({
+        name: engine.player.name,
+        house: engine.player.house,
+        xp: engine.player.totalXP,
+        rank: engine.getRankInfo().currentRank.title,
+        title: 'Guild Adventurer',
+        isPlayer: true
+    });
+    entries.sort((a, b) => b.xp - a.xp);
+    const champion = entries[0];
+    const champHouse = GAME_DATA.houses[champion.house];
+
+    // Player's monster progress
+    const defeatedCount = engine.player.defeatedMonsters ? engine.player.defeatedMonsters.length : 0;
+
+    // Build monster progress grid
+    const monsterList = [
+        { id: 'mon-slime', name: 'Error Slime', level: 1, emoji: '👾' },
+        { id: 'mon-spider', name: 'Audit Crawler', level: 2, emoji: '🕷️' },
+        { id: 'mon-bat', name: 'Denial Bat', level: 3, emoji: '🦇' },
+        { id: 'mon-ghost', name: 'Phantom Gap', level: 4, emoji: '👻' },
+        { id: 'mon-dragon', name: 'Variance Drake', level: 5, emoji: '🐲' },
+        { id: 'mon-eye', name: 'Oversight Eye', level: 6, emoji: '👁️' },
+        { id: 'mon-skull', name: 'Defect Lord', level: 7, emoji: '💀' }
+    ];
+
+    const monsterGridHTML = monsterList.map(function(m) {
+        const defeated = engine.isMonsterDefeated(m.id);
+        const canFight = engine.canFightMonster(m.level);
+        var statusIcon = '🔒';
+        var statusColor = '#666';
+        if (defeated) { statusIcon = '✅'; statusColor = '#4caf50'; }
+        else if (canFight) { statusIcon = '⚔️'; statusColor = '#ff8c42'; }
+        return '<div style="display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.6rem;background:rgba(40,20,10,0.4);border-radius:6px;border:1px solid ' + statusColor + '33;">' +
+            '<span style="font-size:1.1rem;">' + m.emoji + '</span>' +
+            '<div style="flex:1;">' +
+            '<div style="font-size:0.7rem;color:#f0e8d8;font-weight:600;">Lv.' + m.level + ' ' + m.name + '</div>' +
+            '</div>' +
+            '<span style="font-size:0.9rem;">' + statusIcon + '</span>' +
+            '</div>';
+    }).join('');
+
+    const bossStatus = defeatedCount >= 7
+        ? '<div style="font-size:0.75rem;color:#4caf50;font-weight:700;">✅ BOSS RAID UNLOCKED!</div>'
+        : '<div style="font-size:0.75rem;color:#ff8c42;font-weight:700;">🔒 Boss Raid: Defeat all 7 monsters to unlock</div>';
+
+    const crcrStatus = defeatedCount >= 7
+        ? '<p style="font-size:0.75rem;color:#4caf50;">✅ Unlocked! You have proven your universal knowledge. Access CRCR Exam Mode from Certification Peak.</p>'
+        : '<p style="font-size:0.75rem;color:var(--text-muted);">🔒 Complete all monster levels to unlock CRCR Exam Mode. This proves you have the universal RCM knowledge foundation.</p>';
+
+    // Build top guild members list (leaderboard inside champion view)
+    const topMembers = entries.slice(0, 10);
+    const leaderboardHTML = topMembers.map(function(entry, i) {
+        const house = GAME_DATA.houses[entry.house];
+        var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1);
+        var isPlayer = entry.isPlayer || false;
+        var highlight = isPlayer ? 'border-color:#ffd700;background:rgba(255,215,0,0.08);' : '';
+        return '<div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.7rem;background:linear-gradient(180deg,#3a2a18,#2a1a0e);border:1px solid #5a3a15;border-radius:8px;' + highlight + '">' +
+            '<div style="font-size:1rem;min-width:28px;text-align:center;">' + medal + '</div>' +
+            '<div style="width:36px;height:36px;background:linear-gradient(135deg,' + house.color + ',' + house.color + '88);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;border:2px solid #8b6914;">' + house.icon + '</div>' +
+            '<div style="flex:1;">' +
+            '<div style="font-family:Cinzel,serif;font-size:0.75rem;font-weight:700;color:#f0e8d8;">' + entry.name + (isPlayer ? ' (You)' : '') + '</div>' +
+            '<div style="font-size:0.65rem;color:#9a8a6a;">' + entry.rank + ' · ' + house.name + '</div>' +
+            '</div>' +
+            '<div style="font-size:0.75rem;color:#ffd700;font-weight:700;">' + entry.xp.toLocaleString() + ' ⭐</div>' +
+            '</div>';
+    }).join('');
+
+    body.innerHTML = `
+        <div style="padding:1.5rem 1rem;">
+            <!-- Champion Display -->
+            <div style="text-align:center;margin-bottom:1.5rem;">
+                <div style="position:relative;display:inline-block;margin-bottom:1rem;">
+                    <img src="images/levelbadge.png" alt="Champion Badge" style="width:100px;height:100px;filter:drop-shadow(0 0 20px rgba(255,215,0,0.6));">
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.2rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">
+                        ${champHouse.icon}
+                    </div>
+                </div>
+                <div style="font-family:'Cinzel Decorative',cursive;font-size:1.2rem;color:#ffd700;text-shadow:0 0 12px rgba(255,215,0,0.4);">
+                    👑 GUILD CHAMPION
+                </div>
+                <div style="font-family:'Cinzel',serif;font-size:1rem;color:#f0e8d8;margin-top:0.4rem;font-weight:900;">
+                    ${champion.name} ${champion.isPlayer ? '(You!)' : ''}
+                </div>
+                <div style="color:#c9a84c;font-size:0.8rem;margin-top:0.2rem;">
+                    ${champion.rank} · ${champHouse.name} · ${champion.xp.toLocaleString()} XP
+                </div>
+            </div>
+
+            <!-- Top Guild Members Leaderboard -->
+            <div style="margin-bottom:1.5rem;">
+                <h4 style="font-family:'Cinzel',serif;color:var(--gold);font-size:0.9rem;margin-bottom:0.8rem;">🏆 Top Guild Members</h4>
+                <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                    ${leaderboardHTML}
+                </div>
+            </div>
+
+            <!-- Monster Progress Tracker -->
+            <div style="padding:1.2rem;background:var(--bg-dark);border:2px solid rgba(201,168,76,0.3);border-radius:12px;text-align:left;">
+                <h4 style="font-family:'Cinzel',serif;color:var(--gold);font-size:0.9rem;margin-bottom:0.8rem;text-align:center;">
+                    ⚔️ Your Monster Progress (${defeatedCount}/7)
+                </h4>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                    ${monsterGridHTML}
+                </div>
+                <div style="text-align:center;margin-top:1rem;">
+                    ${bossStatus}
+                </div>
+            </div>
+
+            <!-- CRCR Access Status -->
+            <div style="margin-top:1.2rem;padding:1rem;background:var(--bg-dark);border:1px solid rgba(201,168,76,0.2);border-radius:10px;">
+                <h4 style="font-family:'Cinzel',serif;color:var(--gold);font-size:0.85rem;margin-bottom:0.5rem;">📜 CRCR Exam Mode</h4>
+                ${crcrStatus}
+            </div>
+        </div>
+    `;
 }
 
 function animateLeaderboardChars() {
